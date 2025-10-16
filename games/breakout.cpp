@@ -15,6 +15,14 @@
     int points_per_paddle_hit = 10;
     bool auto_play = true;
 
+    struct Ball {
+        int x;
+        int y;
+        int direction_x;
+        int direction_y;
+        bool alive;
+    };
+
     // State
     static int pause_frames = pause_duration;
     static int rumble_frames = 0;
@@ -23,10 +31,14 @@
     static int score = 0;
     static int score_ticker = 0;
     static int level = 0;
-    static int ball_x = screen_w / 2;
-    static int ball_y = screen_h - 10;
-    static int direction_x = 1;
-    static int direction_y = 1;
+    static const int max_balls = 3;
+    static Ball balls[max_balls] = {
+        {0, 0, true},
+        {0, 0, false},
+        {0, 0, false}
+    };
+    // static int direction_x = 1;
+    // static int direction_y = 1;
 
     // Calculate pad position based on knob state
     int paddle_x = id(knob).state * ((float)(screen_w - paddle_w) / knob_max);
@@ -36,7 +48,7 @@
     // Autoplay
     if (id(global_game_autoplay))
     {
-        paddle_x = ball_x - (paddle_w / 2);
+        paddle_x = balls[0].x - (paddle_w / 2);
         if (paddle_x < 0)
         {
             paddle_x = 0;
@@ -46,6 +58,12 @@
             paddle_x = screen_w - paddle_w;
         }
     }
+
+    int BRICK_TYPE_NORMAL = 0;
+    int BRICK_TYPE_UP_GATE = 1;
+    int BRICK_TYPE_DOWN_GATE = 2;
+    int BRICK_TYPE_EXTRA_LIFE = 3;
+    int BRICK_TYPE_EXTRA_BALL = 4;
 
     struct Brick
     {
@@ -168,8 +186,9 @@
 
     auto place_ball_on_paddle = [&]()
     {
-        ball_x = paddle_x + (paddle_w / 2);
-        ball_y = screen_h - paddle_h - ball_size;
+        balls[0].alive = true;
+        balls[0].x = paddle_x + (paddle_w / 2);
+        balls[0].y = screen_h - paddle_h - ball_size;
     };
 
     auto setup_next_level = [&]()
@@ -177,7 +196,7 @@
         level++;
         lives = 5;
         // Ball needs to be moving up to avoid giving points for the paddle hit as soon as the game starts
-        direction_y = -1;
+        balls[0].direction_y = -1;
         pause_frames = pause_duration;
         int brick_hp = level;
         if (brick_hp > brick_max_hp)
@@ -207,6 +226,20 @@
         // TODO: This is for testing unbreakable bricks
         // Special bricks should be implemented in level design separately
         bricks[24].hp = -1;
+        bricks[27].type = BRICK_TYPE_EXTRA_BALL;
+    };
+
+    auto add_new_ball = [&]() {
+        for (int i = 0; i < max_balls; i++) {
+            if (!balls[i].alive) {
+                balls[i].alive = true;
+                balls[i].x = paddle_x + (paddle_w / 2);
+                balls[i].y = 0; // Place new ball at the top of the screen
+                balls[i].direction_x = (i % 2 == 0) ? 1 : -1; // Alternate direction for variety
+                balls[i].direction_y = 1; // Start moving downwards
+                break; // Only add one ball at a time
+            }
+        }
     };
 
     auto rumble = [&]() {
@@ -222,12 +255,27 @@
             bricks[id].hp--;
             score = score + points_per_brick;
             rumble();
+
+            if (bricks[id].type == BRICK_TYPE_EXTRA_BALL) {
+                bricks[id].hp = 0;
+                add_new_ball();
+            }
         }
+        
 
         if (id(global_game_sound)) {
             id(rtttl_player).stop();
             id(rtttl_player).play("Untitled:d=4,o=6,b=63:32c");
         }
+    };
+
+    auto any_balls_alive = [&]() -> bool {
+        for (int i = 0; i < max_balls; i++) {
+            if (balls[i].alive) {
+                return true;
+            }
+        }
+        return false;
     };
 
     ////////////////////////////////
@@ -278,108 +326,118 @@
     else
     {
         // Game loop logic
-        ball_x = ball_x + direction_x;
-        ball_y = ball_y + direction_y;
+        
+        // Iterate over all balls and handle movement and collisions
+        for (int b = 0; b < max_balls; b++) {
+            Ball& ball = balls[b];
+            if (!ball.alive) continue;
 
-        // Wall collisions
-        if (ball_x < 0)
-        { // Left
-            direction_x = 1;
-        }
-        if (ball_y < 0)
-        { // Top
-            direction_y = 1;
-        }
-        if (ball_x + ball_size > screen_w)
-        { // Right
-            direction_x = -1;
-        }
+            ball.x += ball.direction_x;
+            ball.y += ball.direction_y;
 
-        // Bottom (missed paddle)
-        if (ball_y + ball_size > screen_h)
-        {
-            lives--;
-            place_ball_on_paddle();
-            direction_y = -1;
-            pause_frames = pause_duration;
-        }
-
-        // Brick collisions
-        for (int i = 0; i < brick_count; i++)
-        {
-            Brick& brick = bricks[i];
-
-            if (brick.hp == 0)
-            {
-                continue;
+            // Wall collisions
+            if (ball.x < 0)
+            { // Left
+                ball.direction_x = 1;
+            }
+            if (ball.y < 0)
+            { // Top
+                ball.direction_y = 1;
+            }
+            if (ball.x + ball_size > screen_w)
+            { // Right
+                ball.direction_x = -1;
             }
 
-            // Horizontal collisions
+            // Bottom (missed paddle)
+            if (ball.y + ball_size > screen_h)
+            {
+                ball.alive = false;
+                if(!any_balls_alive()) {
+                    lives--;
+                    place_ball_on_paddle();
+                    ball.direction_y = -1;
+                    pause_frames = pause_duration;
+                }
+            }
+
+            // Brick collisions
+            for (int i = 0; i < brick_count; i++)
+            {
+                Brick& brick = bricks[i];
+
+                if (brick.hp == 0)
+                {
+                    continue;
+                }
+
+                // Horizontal collisions
+                if (
+                    ball.y >= brick.y && ball.y + ball_size <= brick.y + brick_h)
+                {
+                    // Collision on left edge (ball moving right)
+                    if (ball.direction_x == 1)
+                    {
+                        if (ball.x + ball_size >= brick.x && ball.x + ball_size <= brick.x + brick_w)
+                        {
+                            ball.direction_x = -1;
+                            on_brick_hit(i);
+                        }
+                    }
+                    // Collision on right edge (ball moving left)
+                    else if (ball.direction_x == -1)
+                    {
+                        if (ball.x <= brick.x + brick_w && ball.x >= brick.x)
+                        {
+                            ball.direction_x = 1;
+                            on_brick_hit(i);
+                        }
+                    }
+                }
+                // Vertical collisions
+                if (
+                    ball.x >= brick.x && ball.x + ball_size <= brick.x + brick_w)
+                {
+                    // Collision on top edge (ball moving down)
+                    if (ball.direction_y == 1)
+                    {
+                        if (ball.y + ball_size >= brick.y && ball.y + ball_size <= brick.y + brick_h)
+                        {
+                            ball.direction_y = -1;
+                            on_brick_hit(i);
+                        }
+                    }
+                    // Collision on bottom edge (ball moving up)
+                    else if (ball.direction_y == -1)
+                    {
+                        if (ball.y <= brick.y + brick_h && ball.y >= brick.y)
+                        {
+                            ball.direction_y = 1;
+                            on_brick_hit(i);
+                        }
+                    }
+                }
+            }
+
+            // Check if ball hits paddle
             if (
-                ball_y >= brick.y && ball_y + ball_size <= brick.y + brick_h)
+                ball.x >= paddle_x
+                && ball.x <= paddle_x + paddle_w
+                && ball.y + ball_size > screen_h - paddle_h
+                && ball.direction_y == 1
+            )
             {
-                // Collision on left edge (ball moving right)
-                if (direction_x == 1)
+                ball.direction_y = -1;
+                score = score + points_per_paddle_hit;
+                paddle_hit = true;
+                if (ball.x + (ball_size / 2) > paddle_x + (paddle_w / 2))
                 {
-                    if (ball_x + ball_size >= brick.x && ball_x + ball_size <= brick.x + brick_w)
-                    {
-                        direction_x = -1;
-                        on_brick_hit(i);
-                    }
+                    ball.direction_x = 1;
                 }
-                // Collision on right edge (ball moving left)
-                else if (direction_x == -1)
+                else
                 {
-                    if (ball_x <= brick.x + brick_w && ball_x >= brick.x)
-                    {
-                        direction_x = 1;
-                        on_brick_hit(i);
-                    }
+                    ball.direction_x = -1;
                 }
-            }
-            // Vertical collisions
-            if (
-                ball_x >= brick.x && ball_x + ball_size <= brick.x + brick_w)
-            {
-                // Collision on top edge (ball moving down)
-                if (direction_y == 1)
-                {
-                    if (ball_y + ball_size >= brick.y && ball_y + ball_size <= brick.y + brick_h)
-                    {
-                        direction_y = -1;
-                        on_brick_hit(i);
-                    }
-                }
-                // Collision on bottom edge (ball moving up)
-                else if (direction_y == -1)
-                {
-                    if (ball_y <= brick.y + brick_h && ball_y >= brick.y)
-                    {
-                        direction_y = 1;
-                        on_brick_hit(i);
-                    }
-                }
-            }
-        }
-
-        // Check if ball hits paddle
-        if (
-            ball_x >= paddle_x
-            && ball_x <= paddle_x + paddle_w
-            && ball_y + ball_size > screen_h - paddle_h
-            && direction_y == 1
-        )
-        {
-            direction_y = -1;
-            score = score + points_per_paddle_hit;
-            paddle_hit = true;
-            if (ball_x + (ball_size / 2) > paddle_x + (paddle_w / 2))
-            {
-                direction_x = 1;
-            }
-            else
-            {
-                direction_x = -1;
             }
         }
     }
@@ -427,6 +485,22 @@
 
             if (brick.hp == 0)
             {
+                continue;
+            }
+
+            // Special rendering for multiball brick
+            if (brick.type == BRICK_TYPE_EXTRA_BALL) {
+                // Draw brick outline with corners
+                it.rectangle(bricks[i].x, bricks[i].y, brick_w, brick_h);
+                // Draw a ball (circle) in the center
+                int cx = bricks[i].x + brick_w / 2;
+                int cy = bricks[i].y + brick_h / 2;
+                int r = (brick_h < brick_w ? brick_h : brick_w) / 3;
+                it.circle(cx, cy, r);
+
+                // Draw plus sign inside the ball
+                it.line(cx - 1, cy, cx + 1, cy);
+                it.line(cx, cy - 1, cx, cy + 1);
                 continue;
             }
 
@@ -485,8 +559,12 @@
     draw_bricks();
     draw_paddle();
 
-    // Ball
-    it.filled_rectangle(ball_x, ball_y, ball_size, ball_size);
+    // Balls
+    for (int b = 0; b < max_balls; b++) {
+        if (balls[b].alive) {
+            it.filled_rectangle(balls[b].x, balls[b].y, ball_size, ball_size);
+        }
+    }
 
     // Overlay text during pauses
     if (pause_frames > 0)

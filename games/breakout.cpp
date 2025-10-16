@@ -9,18 +9,15 @@
     int brick_h = 7;
     int brick_max_hp = 5;
     int knob_max = 100.0;
+    int rumble_duration = 4;
     int pause_duration = 100; // 100 frames, at 30fps = ~3 seconds
     int points_per_brick = 5;
     int points_per_paddle_hit = 10;
     bool auto_play = true;
 
-    // Calculate pad position based on knob state
-    int paddle_x = id(knob).state * ((float)(screen_w - paddle_w) / knob_max);
-    int paddle_y = screen_h - paddle_h;
-    bool paddle_hit = false;
-
     // State
     static int pause_frames = pause_duration;
+    static int rumble_frames = 0;
     static int max_lives = 5;
     static int lives = 5;
     static int score = 0;
@@ -30,6 +27,11 @@
     static int ball_y = screen_h - 10;
     static int direction_x = 1;
     static int direction_y = 1;
+
+    // Calculate pad position based on knob state
+    int paddle_x = id(knob).state * ((float)(screen_w - paddle_w) / knob_max);
+    int paddle_y = screen_h - paddle_h;
+    bool paddle_hit = false;
 
     // Autoplay
     if (id(global_game_autoplay))
@@ -53,12 +55,16 @@
         int type;
         // Type defines the behavior of the brick
         // 0 = normal
-        // ? = unbreakable
+        // TODO:
         // ? = upwards only gate
-        // ? = inverter brick
+        // ? = inverter brick (flip screen for x amount of time or until the next level)
         // ? = extra ball
         // ? = extra life
-        // ?  ==explode adjacent bricks
+        // ? = explode adjacent bricks
+
+        // Defined with < 0 HP:
+        // ? = unbreakable
+
     };
 
     ////////////////////////////////
@@ -160,10 +166,17 @@
         return true;
     };
 
+    auto place_ball_on_paddle = [&]()
+    {
+        ball_x = paddle_x + (paddle_w / 2);
+        ball_y = screen_h - paddle_h - ball_size;
+    };
+
     auto setup_next_level = [&]()
     {
         level++;
         lives = 5;
+        // Ball needs to be moving up to avoid giving points for the paddle hit as soon as the game starts
         direction_y = -1;
         pause_frames = pause_duration;
         int brick_hp = level;
@@ -175,6 +188,7 @@
         int start_brick = 8;
         int end_brick = brick_count - 16;
 
+        // Add new row at level 2
         if (level > 1)
         {
             end_brick = brick_count - 8;
@@ -184,16 +198,32 @@
         if (level > 5) {
             end_brick = brick_count;
         }
+
         for (int i = start_brick; i < end_brick; i++)
         {
             bricks[i].hp = brick_hp;
         }
+
+        // TODO: This is for testing unbreakable bricks
+        // Special bricks should be implemented in level design separately
+        bricks[24].hp = -1;
+    };
+
+    auto rumble = [&]() {
+        id(rumble_output).turn_on();
+        rumble_frames = rumble_duration;
     };
 
     auto on_brick_hit = [&](int id)
     {
-        bricks[id].hp--;
-        score = score + points_per_brick;
+
+        if (bricks[id].hp > 0)
+        {
+            bricks[id].hp--;
+            score = score + points_per_brick;
+            rumble();
+        }
+
         if (id(global_game_sound)) {
             id(rtttl_player).stop();
             id(rtttl_player).play("Untitled:d=4,o=6,b=63:32c");
@@ -222,15 +252,22 @@
         score_ticker++;
     }
 
-    // Check if paused
+    // Handle rumble feedback
+    if (rumble_frames > 0) {
+        rumble_frames--;
+        if (rumble_frames == 0) {
+            id(rumble_output).turn_off();
+        }
+    }
+
+    // Handle pause logic (used when game is about to start or has ended)
     if (pause_frames)
     {
         // Consume a frame
         pause_frames--;
 
         // Keep ball on paddle
-        ball_x = paddle_x + (paddle_w / 2);
-        ball_y = screen_h - paddle_h - ball_size;
+        place_ball_on_paddle();
 
         // If all frames consumed, check for game over
         if (!pause_frames && lives == 0)
@@ -240,7 +277,7 @@
     }
     else
     {
-        // Game loop logix
+        // Game loop logic
         ball_x = ball_x + direction_x;
         ball_y = ball_y + direction_y;
 
@@ -262,8 +299,7 @@
         if (ball_y + ball_size > screen_h)
         {
             lives--;
-            ball_x = paddle_x + (paddle_w / 2);
-            ball_y = screen_h - paddle_h - ball_size;
+            place_ball_on_paddle();
             direction_y = -1;
             pause_frames = pause_duration;
         }
@@ -273,7 +309,7 @@
         {
             Brick& brick = bricks[i];
 
-            if (brick.hp < 1)
+            if (brick.hp == 0)
             {
                 continue;
             }
@@ -352,11 +388,10 @@
     // Rendering
     ////////////////////////////////
 
-    // Functions
     auto draw_heart = [&](int x, int y)
     {
         it.line(x + 1, y, x + 2, y);
-        it.line(x + 4, y, x + 5, y);              //  ## ##
+        it.line(x + 4, y, x + 5, y);              //  ## ## I love ESPHome!
         it.filled_rectangle(x, y + 1, 7, 2);      // #######
                                                   // #######
         it.line(x + 1, y + 3, x + 5, y + 3);      //  #####
@@ -375,17 +410,12 @@
     auto draw_score = [&]()
     {
         int padding_x = 2;
-        // it.printf(screen_w - padding_x, -2, id(font_xxs), TextAlign::TOP_RIGHT, "%d", score);
         it.printf(screen_w - padding_x, -2, id(font_xxs), TextAlign::TOP_RIGHT, "%d", score_ticker);
     };
 
     auto draw_level = [&]()
     {
-                // Draw centered text
-        int text_center_x = screen_w / 2;
-        int text_center_y = 0;
-        it.printf(text_center_x, text_center_y, id(font_xxs), TextAlign::CENTER, "LVL%d", level);
-        // it.printf(screen_w - padding_x, -2, id(font_xxs), TextAlign::TOP_RIGHT, "%d", score_ticker);
+        it.printf(screen_w / 2, -2, id(font_xxs), TextAlign::TOP_CENTER, "LVL%d", level);
     };
 
     auto draw_bricks = [&]()
@@ -394,7 +424,8 @@
         for (int i = 0; i < brick_count; i++)
         {
             Brick brick = bricks[i];
-            if (brick.hp < 1)
+
+            if (brick.hp == 0)
             {
                 continue;
             }
@@ -413,10 +444,32 @@
                 it.rectangle(bricks[i].x, bricks[i].y, brick_w, brick_h);
                 it.rectangle(bricks[i].x + 2, bricks[i].y + 2, brick_w - 4, brick_h - 4);
             }
+            // Unbreakable bricks
+            else if (brick.hp < 0)
+            {
+                it.filled_rectangle(bricks[i].x, bricks[i].y, brick_w, brick_h);
+                // Clear out 2x2 squares in each corner and keep 1px border intact
+                it.filled_rectangle(bricks[i].x + 1, bricks[i].y + 1, 2, 2, COLOR_OFF);
+                it.filled_rectangle(bricks[i].x + brick_w - 3, bricks[i].y + 1, 2, 2, COLOR_OFF);
+                it.filled_rectangle(bricks[i].x + 1, bricks[i].y + brick_h - 3, 2, 2, COLOR_OFF);
+                it.filled_rectangle(bricks[i].x + brick_w - 3, bricks[i].y + brick_h - 3, 2, 2, COLOR_OFF);
+            }
             else
             {
                 it.rectangle(bricks[i].x, bricks[i].y, brick_w, brick_h);
             }
+        }
+    };
+
+    auto draw_paddle = [&]()
+    {
+        if (paddle_hit)
+        {
+            it.filled_rectangle(paddle_x, paddle_y, paddle_w, paddle_h);
+        }
+        else
+        {
+            it.rectangle(paddle_x, paddle_y, paddle_w, paddle_h);
         }
     };
 
@@ -428,23 +481,14 @@
     draw_score();
     draw_level();
 
-
+    // Game elements
     draw_bricks();
-
-    // Paddle
-    if (paddle_hit)
-    {
-        it.filled_rectangle(paddle_x, paddle_y, paddle_w, paddle_h);
-    }
-    else
-    {
-        it.rectangle(paddle_x, paddle_y, paddle_w, paddle_h);
-    }
+    draw_paddle();
 
     // Ball
     it.filled_rectangle(ball_x, ball_y, ball_size, ball_size);
 
-    // Overlay text
+    // Overlay text during pauses
     if (pause_frames > 0)
     {
         std::string text1 = "[GLITCH???]";
@@ -452,7 +496,6 @@
 
         if (lives == max_lives)
         {
-            // TODO: draw "LEVEL 1" and "GET READY!" on separate lines
             text1 = "LEVEL " + std::to_string(level);
             text2 = "GET READY!";
         }

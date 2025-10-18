@@ -8,12 +8,19 @@
     int brick_w = 15;
     int brick_h = 7;
     int brick_max_hp = 5;
-    int knob_max = 100.0;
+    int knob_max = 50;
     int rumble_duration = 4;
     int pause_duration = 100; // 100 frames, at 30fps = ~3 seconds
     int points_per_brick = 5;
     int points_per_paddle_hit = 10;
     bool auto_play = true;
+    // int frames_per_update = 1;
+
+    // Sounds
+    // blip: Untitled:d=32,o=6,b=200:32e6,g
+    std::string sound_brick_hit = "Untitled:d=32,o=7,b=250:f,a";
+    std::string sound_paddle_hit = "Untitled:d=32,o=7,b=250:f#";
+    std::string sound_ball_lost = "Untitled:d=32,o=7,b=250:a,p,a#,p,p,p,f#,p,p,p,p,c";
 
     struct Ball {
         int x;
@@ -24,6 +31,7 @@
     };
 
     // State
+    static int frame = 0;
     static int pause_frames = pause_duration;
     static int rumble_frames = 0;
     static int max_lives = 5;
@@ -31,14 +39,29 @@
     static int score = 0;
     static int score_ticker = 0;
     static int level = 0;
-    static const int max_balls = 3;
+    static int shield_amount = 0;
+    static const int max_balls = 10;
     static Ball balls[max_balls] = {
         {0, 0, true},
         {0, 0, false},
-        {0, 0, false}
+        {0, 0, false},
+        {0, 0, false},
+        {0, 0, false},
+        {0, 0, false},
+        {0, 0, false},
+        {0, 0, false},
+        {0, 0, false},
+        {0, 0, false},
     };
-    // static int direction_x = 1;
-    // static int direction_y = 1;
+
+    // Consume frames for throttling
+    // if (frame < frames_per_update)
+    // {
+    //     frame++;
+    //     return;
+    // } else {
+    //     frame = 0;
+    // }
 
     // Calculate pad position based on knob state
     int paddle_x = id(knob).state * ((float)(screen_w - paddle_w) / knob_max);
@@ -48,7 +71,15 @@
     // Autoplay
     if (id(global_game_autoplay))
     {
-        paddle_x = balls[0].x - (paddle_w / 2);
+        int ball_position_x = 64; // Middle by default
+        for (int b = 0; b < max_balls; b++) {
+            if (balls[b].alive) {
+                ball_position_x = balls[b].x;
+                break;
+            }
+        }
+
+        paddle_x = ball_position_x - (paddle_w / 2);
         if (paddle_x < 0)
         {
             paddle_x = 0;
@@ -60,10 +91,9 @@
     }
 
     int BRICK_TYPE_NORMAL = 0;
-    int BRICK_TYPE_UP_GATE = 1;
-    int BRICK_TYPE_DOWN_GATE = 2;
-    int BRICK_TYPE_EXTRA_LIFE = 3;
-    int BRICK_TYPE_EXTRA_BALL = 4;
+    int BRICK_TYPE_SHIELD = 1;
+    int BRICK_TYPE_EXTRA_BALL = 2;
+    
 
     struct Brick
     {
@@ -150,11 +180,12 @@
     ////////////////////////////////
     // Functions
     ////////////////////////////////
-    auto clear_brick_hp = [&]()
+    auto clear_bricks = [&]()
     {
         for (int i = 0; i < brick_count; i++)
         {
             bricks[i].hp = 0;
+            bricks[i].type = BRICK_TYPE_NORMAL;
         }
     };
 
@@ -203,7 +234,7 @@
         {
             brick_hp = brick_max_hp;
         }
-        clear_brick_hp();
+        clear_bricks();
         int start_brick = 8;
         int end_brick = brick_count - 16;
 
@@ -223,10 +254,21 @@
             bricks[i].hp = brick_hp;
         }
 
-        // TODO: This is for testing unbreakable bricks
-        // Special bricks should be implemented in level design separately
-        bricks[24].hp = -1;
-        bricks[27].type = BRICK_TYPE_EXTRA_BALL;
+        // Place random bricks according to level number
+        int assigned = 0;
+        int max_assigned = level;
+        if (max_assigned > 40) {
+            max_assigned = 40;
+        }
+        while (assigned < max_assigned) {
+            int idx = 8 + (esp_random() % (end_brick - 8));
+            if (bricks[idx].hp > 0 && bricks[idx].type == BRICK_TYPE_NORMAL) {
+                // Randomly choose between shield or extra ball
+                int rtype = (esp_random() % 2) ? BRICK_TYPE_SHIELD : BRICK_TYPE_EXTRA_BALL;
+                bricks[idx].type = rtype;
+                assigned++;
+            }
+        }
     };
 
     auto add_new_ball = [&]() {
@@ -242,9 +284,18 @@
         }
     };
 
+    auto play_sound = [&](std::string sound) {
+        if (id(global_game_sound)) {
+            id(rtttl_player).stop();
+            id(rtttl_player).play(sound);
+        }
+    };
+
     auto rumble = [&]() {
-        id(rumble_output).turn_on();
-        rumble_frames = rumble_duration;
+        if (id(global_game_rumble)) {
+            id(rumble_output).turn_on();
+            rumble_frames = rumble_duration;
+        }
     };
 
     auto on_brick_hit = [&](int id)
@@ -256,16 +307,17 @@
             score = score + points_per_brick;
             rumble();
 
+            play_sound(sound_brick_hit);
+
             if (bricks[id].type == BRICK_TYPE_EXTRA_BALL) {
                 bricks[id].hp = 0;
                 add_new_ball();
             }
-        }
-        
 
-        if (id(global_game_sound)) {
-            id(rtttl_player).stop();
-            id(rtttl_player).play("Untitled:d=4,o=6,b=63:32c");
+            if (bricks[id].type == BRICK_TYPE_SHIELD) {
+                bricks[id].hp = 0;
+                shield_amount++;
+            }
         }
     };
 
@@ -352,12 +404,20 @@
             // Bottom (missed paddle)
             if (ball.y + ball_size > screen_h)
             {
-                ball.alive = false;
-                if(!any_balls_alive()) {
-                    lives--;
-                    place_ball_on_paddle();
+                if (shield_amount) {
                     ball.direction_y = -1;
-                    pause_frames = pause_duration;
+                    shield_amount--;
+                } else {
+                    ball.alive = false;
+
+                    play_sound(sound_ball_lost);
+
+                    if(!any_balls_alive()) {
+                        lives--;
+                        place_ball_on_paddle();
+                        ball.direction_y = -1;
+                        pause_frames = pause_duration;
+                    }
                 }
             }
 
@@ -430,6 +490,9 @@
                 ball.direction_y = -1;
                 score = score + points_per_paddle_hit;
                 paddle_hit = true;
+
+                play_sound(sound_paddle_hit);
+
                 if (ball.x + (ball_size / 2) > paddle_x + (paddle_w / 2))
                 {
                     ball.direction_x = 1;
@@ -476,6 +539,40 @@
         it.printf(screen_w / 2, -2, id(font_xxs), TextAlign::TOP_CENTER, "LVL%d", level);
     };
 
+    auto draw_special_brick_corners = [&](int x, int y)
+    {
+        // Draw 2x2 L-shaped corners
+        // Top-left
+        it.draw_pixel_at(x, y, COLOR_ON);
+        it.draw_pixel_at(x + 1, y, COLOR_ON);
+        it.draw_pixel_at(x, y + 1, COLOR_ON);
+
+        // Top-right
+        it.draw_pixel_at(x + brick_w - 2, y, COLOR_ON);
+        it.draw_pixel_at(x + brick_w - 1, y, COLOR_ON);
+        it.draw_pixel_at(x + brick_w - 1, y + 1, COLOR_ON);
+
+        // Bottom-left
+        it.draw_pixel_at(x, y + brick_h - 2, COLOR_ON);
+        it.draw_pixel_at(x, y + brick_h - 1, COLOR_ON);
+        it.draw_pixel_at(x + 1, y + brick_h - 1, COLOR_ON);
+
+        // Bottom-right
+        it.draw_pixel_at(x + brick_w - 2, y + brick_h - 1, COLOR_ON);
+        it.draw_pixel_at(x + brick_w - 1, y + brick_h - 1, COLOR_ON);
+        it.draw_pixel_at(x + brick_w - 1, y + brick_h - 2, COLOR_ON);
+    };
+
+    auto draw_unbreakable_brick = [&](int x, int y)
+    {
+        it.filled_rectangle(x, y, brick_w, brick_h);
+        // Clear out 2x2 squares in each corner and keep 1px border intact
+        it.filled_rectangle(x + 1, y + 1, 2, 2, COLOR_OFF);
+        it.filled_rectangle(x + brick_w - 3, y + 1, 2, 2, COLOR_OFF);
+        it.filled_rectangle(x + 1, y + brick_h - 3, 2, 2, COLOR_OFF);
+        it.filled_rectangle(x + brick_w - 3, y + brick_h - 3, 2, 2, COLOR_OFF);
+    };
+
     auto draw_bricks = [&]()
     {
         // Draw bricks with different graphics based on HP
@@ -491,16 +588,30 @@
             // Special rendering for multiball brick
             if (brick.type == BRICK_TYPE_EXTRA_BALL) {
                 // Draw brick outline with corners
-                it.rectangle(bricks[i].x, bricks[i].y, brick_w, brick_h);
-                // Draw a ball (circle) in the center
-                int cx = bricks[i].x + brick_w / 2;
-                int cy = bricks[i].y + brick_h / 2;
-                int r = (brick_h < brick_w ? brick_h : brick_w) / 3;
-                it.circle(cx, cy, r);
+                draw_special_brick_corners(bricks[i].x, bricks[i].y);
 
-                // Draw plus sign inside the ball
-                it.line(cx - 1, cy, cx + 1, cy);
-                it.line(cx, cy - 1, cx, cy + 1);
+                // Draw a ball (circle) on the left side
+                int ball_cx = bricks[i].x + 3;
+                int ball_cy = bricks[i].y + brick_h / 2;
+                int r = 2;
+                it.filled_circle(ball_cx, ball_cy, r);
+
+                // Draw plus sign on the right side
+                int plus_cx = bricks[i].x + brick_w - 6;
+                int plus_cy = bricks[i].y + brick_h / 2;
+                it.line(plus_cx - 2, plus_cy, plus_cx + 2, plus_cy);
+                it.line(plus_cx, plus_cy - 2, plus_cx, plus_cy + 2);
+
+                continue;
+            }
+            // Special rendering for multiball brick
+            if (brick.type == BRICK_TYPE_SHIELD) {
+                // Draw brick outline with corners
+                draw_special_brick_corners(bricks[i].x, bricks[i].y);
+
+                // Draw a horizontal line at the bottom, offset by 4 pixels from each edge
+                int line_y = bricks[i].y + brick_h - 1;
+                it.line(bricks[i].x + 4, line_y, bricks[i].x + brick_w - 5, line_y);
                 continue;
             }
 
@@ -521,12 +632,7 @@
             // Unbreakable bricks
             else if (brick.hp < 0)
             {
-                it.filled_rectangle(bricks[i].x, bricks[i].y, brick_w, brick_h);
-                // Clear out 2x2 squares in each corner and keep 1px border intact
-                it.filled_rectangle(bricks[i].x + 1, bricks[i].y + 1, 2, 2, COLOR_OFF);
-                it.filled_rectangle(bricks[i].x + brick_w - 3, bricks[i].y + 1, 2, 2, COLOR_OFF);
-                it.filled_rectangle(bricks[i].x + 1, bricks[i].y + brick_h - 3, 2, 2, COLOR_OFF);
-                it.filled_rectangle(bricks[i].x + brick_w - 3, bricks[i].y + brick_h - 3, 2, 2, COLOR_OFF);
+                draw_unbreakable_brick(bricks[i].x, bricks[i].y);
             }
             else
             {
@@ -547,6 +653,22 @@
         }
     };
 
+    auto draw_shield = [&]()
+    {
+        if (shield_amount) {
+            // Draw shield under paddle
+            int shield_y = screen_h-1;
+            int shield_x_start = 0;
+            // Draw dashed shield line under paddle
+            int x = shield_x_start;
+            while (x < screen_w) {
+                int dash = std::min(shield_amount, screen_w - x);
+                it.line(x, shield_y, x + dash - 1, shield_y);
+                x += dash + 1; // dash width + 1px gap
+            }
+        }
+    };
+
     // Clear display
     it.fill(COLOR_OFF);
 
@@ -558,6 +680,7 @@
     // Game elements
     draw_bricks();
     draw_paddle();
+    draw_shield();
 
     // Balls
     for (int b = 0; b < max_balls; b++) {
@@ -602,6 +725,12 @@
             (screen_w - (overlay_h_padding * 2) + overlay_outline * 2),
             overlay_height + (overlay_outline * 2), COLOR_OFF);
         it.rectangle(overlay_h_padding, text_overlay_y, screen_w - overlay_h_padding * 2, overlay_height);
+
+        // Show pause progress bar
+        int progress_bar_padding = 2;
+        int progress_bar_max = (screen_w - overlay_h_padding * 2) - progress_bar_padding * 2;
+        int progress_bar_width = (progress_bar_max * (pause_duration - pause_frames)) / pause_duration;
+        it.rectangle(overlay_h_padding+progress_bar_padding, text_overlay_y+overlay_height-progress_bar_padding, progress_bar_width, 3);
 
         // Draw centered text
         int text_center_x = screen_w / 2;

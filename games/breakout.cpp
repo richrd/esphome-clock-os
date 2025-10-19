@@ -14,13 +14,14 @@
     int points_per_brick = 5;
     int points_per_paddle_hit = 10;
     bool auto_play = true;
-    // int frames_per_update = 1;
 
     // Sounds
-    // blip: Untitled:d=32,o=6,b=200:32e6,g
     std::string sound_brick_hit = "Untitled:d=32,o=7,b=250:f,a";
     std::string sound_paddle_hit = "Untitled:d=32,o=7,b=250:f#";
     std::string sound_ball_lost = "Untitled:d=32,o=7,b=250:a,p,a#,p,p,p,f#,p,p,p,p,c";
+
+    // TODO
+    std::string sound_shield_hit = "";
 
     struct Ball {
         int x;
@@ -54,15 +55,6 @@
         {0, 0, false},
     };
 
-    // Consume frames for throttling
-    // if (frame < frames_per_update)
-    // {
-    //     frame++;
-    //     return;
-    // } else {
-    //     frame = 0;
-    // }
-
     // Calculate pad position based on knob state
     int paddle_x = id(knob).state * ((float)(screen_w - paddle_w) / knob_max);
     int paddle_y = screen_h - paddle_h;
@@ -93,26 +85,20 @@
     int BRICK_TYPE_NORMAL = 0;
     int BRICK_TYPE_SHIELD = 1;
     int BRICK_TYPE_EXTRA_BALL = 2;
-    
+    // TODO:
+    int BRICK_TYPE_UP_ONLY = 3;
+    int BRICK_TYPE_INVERT_SCREEN = 4; // (flip screen for x amount of time or until the next level)
+    // ? = extra ball
+    // ? = extra life
+    // ? = explode adjacent bricks
+
 
     struct Brick
     {
         int x;
         int y;
         int hp;
-        int type;
-        // Type defines the behavior of the brick
-        // 0 = normal
-        // TODO:
-        // ? = upwards only gate
-        // ? = inverter brick (flip screen for x amount of time or until the next level)
-        // ? = extra ball
-        // ? = extra life
-        // ? = explode adjacent bricks
-
-        // Defined with < 0 HP:
-        // ? = unbreakable
-
+        int type; // Type defines the behavior of the brick
     };
 
     ////////////////////////////////

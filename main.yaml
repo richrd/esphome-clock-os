@@ -1,0 +1,579 @@
+esphome:
+  name: esp32-c3-mini-2
+  friendly_name: ESP32 ClockOS
+  on_boot:
+    then:
+      - display.page.show: page_main
+      # The knob position needs to be initialized on boot, otherwise the value is unpredictable
+      # It is set here to a mid-point value (max is 50)
+      - lambda: |-
+          id(knob).publish_state(25);
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+  level: INFO  # Disable Debug logging 
+  logs:
+    graph: ERROR
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret clockos_api_key
+
+ota:
+  - platform: esphome
+    password: !secret clockos_ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "ClockOS Fallback Hotspot"
+    password: !secret clockos_fallback_hotspot_password
+
+
+
+captive_portal:
+
+
+# Log level selector
+select:
+  - platform: logger
+    name: "Log level"
+
+
+
+
+# Sensors
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+
+button:
+  - platform: restart
+    id: restart_button
+    name: "Restart"
+
+text_sensor:
+  - platform: homeassistant
+    entity_id: sensor.local_sunrise
+    id: sunrise_time
+    name: "Sunrise Time"
+
+  - platform: version
+    name: ESPHome Version
+    id: esphome_version
+
+  - platform: wifi_info
+    ip_address:
+      name: IP Address
+      id: ip_address
+
+  - platform: homeassistant
+    entity_id: sensor.ringtone_input
+    id: ringtone_input
+    # This lambda is called whenever HA sends a new value to this text sensor
+    on_value:
+      lambda: |-
+        // The 'x' variable holds the new RTTTL string sent from Home Assistant.
+        // Call the play action on the speaker with the received string.
+        id(rtttl_player).play(x);
+
+switch:
+  - platform: template
+    name: "Autoplay"
+    id: switch_game_autoplay
+    restore_mode: RESTORE_DEFAULT_ON
+    lambda: |-
+      return id(global_game_autoplay);
+    turn_on_action:
+      - lambda: 'id(global_game_autoplay) = true;'
+    turn_off_action:
+      - lambda: 'id(global_game_autoplay) = false;'
+  - platform: template
+    name: "Sound"
+    id: switch_game_sound
+    restore_mode: RESTORE_DEFAULT_ON
+    lambda: |-
+      return id(global_game_sound);
+    turn_on_action:
+      - lambda: 'id(global_game_sound) = true;'
+    turn_off_action:
+      - lambda: 'id(global_game_sound) = false;'
+  - platform: template
+    name: "Rumble"
+    id: switch_game_rumble
+    restore_mode: RESTORE_DEFAULT_ON
+    lambda: |-
+      return id(global_game_rumble);
+    turn_on_action:
+      - lambda: 'id(global_game_rumble) = true;'
+    turn_off_action:
+      - lambda: 'id(global_game_rumble) = false;'
+  - platform: template
+    name: "Snake walls"
+    id: switch_game_snake_walls
+    restore_mode: RESTORE_DEFAULT_ON
+    lambda: |-
+      return id(global_game_snake_walls);
+    turn_on_action:
+      - lambda: 'id(global_game_snake_walls) = true;'
+    turn_off_action:
+      - lambda: 'id(global_game_snake_walls) = false;'
+  - platform: gpio
+    id: rumble_output
+    pin: GPIO10
+    name: "Rumble Motor"
+
+sensor:
+  - platform: wifi_signal
+    internal: true
+    update_interval: 0.5s
+    id: wifi_rssi
+
+  - platform: uptime
+    name: Uptime Sensor
+    id: uptime_sensor
+
+  - platform: template
+    name: Free Memory
+    id: free_memory
+    lambda: |-
+      return heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    update_interval: 60s
+    unit_of_measurement: "bytes"
+
+  - platform: homeassistant
+    id: ha_temperature
+    entity_id: sensor.weather_temperature
+
+  - platform: homeassistant
+    id: ha_humidity
+    entity_id: weather.forecast_home
+    attribute: humidity
+
+  - platform: rotary_encoder
+    id: knob
+    name: "Knob"
+    internal: true
+    pin_a:
+      number: GPIO02
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    pin_b:
+      number: GPIO1
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    on_anticlockwise:
+      - display_menu.up: main_menu
+      - lambda: 'id(global_knob_direction) = -1;'
+    on_clockwise:
+      - display_menu.down: main_menu
+      - lambda: 'id(global_knob_direction) = 1;'
+    min_value: 0
+    max_value: 50
+
+binary_sensor:
+  - platform: gpio
+    name: "Knob Button"
+    internal: true
+    pin:
+      number: GPIO0
+      mode: INPUT_PULLUP
+      inverted: True
+    filters:
+    - delayed_on: 10ms
+    on_press:
+    - if:
+        condition:
+          display_menu.is_active: main_menu
+        then:
+          - display_menu.enter: main_menu
+        else:
+          - display_menu.show: main_menu
+
+number:
+  - platform: template
+    id: screen_brightness
+    name: "Screen Brightness"
+    icon: "mdi:brightness-percent"
+    step: 10
+    min_value: 0
+    max_value: 100
+    optimistic: true
+    initial_value: 50
+    set_action:
+    - lambda: |-
+        id(display1).set_contrast(x / 100.0);
+  - platform: template
+    id: buzzer_volume
+    name: "Volume"
+    icon: "mdi:speaker"
+    step: 5
+    min_value: 0
+    max_value: 100
+    optimistic: true
+    initial_value: 2
+    set_action:
+    - lambda: |-
+        id(rtttl_player).set_gain(x / 100.0);
+  - platform: template
+    id: snake_speed
+    name: "Speed"
+    step: 1
+    min_value: 1
+    max_value: 20
+    optimistic: true
+    initial_value: 7
+    set_action:
+    - lambda: |-
+        id(global_game_snake_speed) = (int)x;
+
+
+# Various ways to configure fonts
+# - Roboto
+# - Ubuntu+Mono
+# - Exo+2
+font:
+    # gfonts://family[@weight]
+
+  - file: "gfonts://Exo+2"
+    id: font_xxl
+    size: 40
+    extras:
+      - file: "gfonts://Noto+Sans+Symbols+2"
+        glyphs: "⏴⏵"
+  - file: "gfonts://Exo+2"
+    id: font_xl
+    size: 32
+    extras:
+      - file: "gfonts://Noto+Sans+Symbols+2"
+        glyphs: "⏴⏵"
+  - file: "gfonts://Exo+2"
+    id: font_lg
+    size: 20
+    extras:
+      - file: "gfonts://Noto+Sans+Symbols+2"
+        glyphs: "⏴⏵"
+  - file: "gfonts://Exo+2"
+    id: font_md
+    size: 16
+    extras:
+      - file: "gfonts://Noto+Sans+Symbols+2"
+        glyphs: "⏴⏵"
+  - file: "gfonts://Exo+2"
+    id: font_sm
+    size: 12
+    extras:
+      - file: "gfonts://Noto+Sans+Symbols+2"
+        glyphs: "⏴⏵"
+  - file: "gfonts://Exo+2"
+    id: font_xs
+    size: 10
+    extras:
+      - file: "gfonts://Noto+Sans+Symbols+2"
+        glyphs: "⏴⏵"
+  - file: "gfonts://Ubuntu+Mono"
+    id: font_xxs
+    size: 10
+    extras:
+      - file: "gfonts://Noto+Sans+Symbols+2"
+        glyphs: "⏴⏵"
+
+# Example configuration entry
+i2c:
+  sda: GPIO03
+  scl: GPIO04
+  frequency: 800kHz
+
+
+################################################################
+# Globals
+################################################################
+globals:
+  - id: global_game_autoplay
+    type: bool
+    initial_value: 'true'
+
+  - id: global_game_sound
+    type: bool
+    initial_value: 'true'
+
+  - id: global_game_rumble
+    type: bool
+    initial_value: 'true'
+
+  - id: global_game_volume
+    type: int
+    initial_value: '2'
+
+  - id: global_knob_direction
+    type: int
+    initial_value: '0'
+
+  - id: global_game_snake_speed
+    type: int
+    initial_value: '7'
+
+  - id: global_game_snake_walls
+    type: bool
+    initial_value: 'true'
+
+################################################################
+# Menu
+################################################################
+graphical_display_menu:
+  id: main_menu
+  display: display1
+  active: false
+  on_redraw:
+    then:
+      component.update: display1
+  font: font_sm
+  mode: rotary
+  menu_item_value: !lambda |-
+    // Customize menu value editing visuals
+    std::string label = " ";
+    if (it->is_item_selected && it->is_menu_editing) {
+      label.append(" - ");
+      label.append(it->item->get_value_text());
+      label.append(" + ");
+    } else {
+      label.append("[");
+      label.append(it->item->get_value_text());
+      label.append("]");
+    }
+    return label;
+  items:
+    - type: command
+      text: ' Clock '
+      on_value:
+        then:
+            - display_menu.hide: main_menu
+            - display.page.show: page_main
+    - type: menu
+      text: ' Games ⏵ '
+      items:
+        - type: back
+          text: ' ⏴ Back '
+        - type: menu
+          text: ' Breakout ⏵ '
+          items:
+            - type: back
+              text: ' ⏴ Back '
+            - type: command
+              text: ' Play '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_game_breakout
+            - type: command
+              text: !lambda |-
+                return std::string(" Autoplay [") + (id(global_game_autoplay) ? "ON" : "OFF") + "]";
+              on_value:
+                then:
+                  - if:
+                      condition:
+                        lambda: 'return id(global_game_autoplay);'
+                      then:
+                        - switch.turn_off: switch_game_autoplay
+                      else:
+                        - switch.turn_on: switch_game_autoplay
+        - type: menu
+          text: ' Snake ⏵ '
+          items:
+            - type: back
+              text: ' ⏴ Back '
+            - type: command
+              text: ' Play '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_game_snake
+            - type: number
+              text: ' Speed '
+              number: snake_speed
+            - type: command
+              text: !lambda |-
+                return std::string(" Walls [") + (id(global_game_snake_walls) ? "ON" : "OFF") + "]";
+              on_value:
+                then:
+                  - if:
+                      condition:
+                        lambda: 'return id(global_game_snake_walls);'
+                      then:
+                        - switch.turn_off: switch_game_snake_walls
+                      else:
+                        - switch.turn_on: switch_game_snake_walls
+        - type: menu
+          text: ' Demos ⏵ '
+          items:
+            - type: back
+              text: ' ⏴ Back '
+            - type: command
+              text: ' Spin '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_animation_spin
+            - type: command
+              text: ' DVD '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_animation_dvd_screen_saver
+    - type: menu
+      text: ' Sounds ⏵ '
+      items:
+        - type: back
+          text: ' ⏴ Back '
+        - type: command
+          text: ' Mario '
+          on_value:
+            then:
+                - rtttl.play: 'mario:d=4,o=5,b=100:16e6,16e6,32p,8e6,16c6,8e6,8g6,8p,8g,8p,8c6,16p,8g,16p,8e,16p,8a,8b,16a#,8a,16g.,16e6,16g6,8a6,16f6,8g6,8e6,16c6,16d6,8b,16p,8c6,16p,8g,16p,8e,16p,8a,8b,16a#,8a,16g.,16e6,16g6,8a6,16f6,8g6,8e6,16c6,16d6,8b,8p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16g#,16a,16c6,16p,16a,16c6,16d6,8p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16c7,16p,16c7,16c7,p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16g#,16a,16c6,16p,16a,16c6,16d6,8p,16d#6,8p,16d6,8p,16c6'
+        - type: command
+          text: ' Star Wars '
+          on_value:
+            then:
+                - rtttl.play: 'star_wars:d=16,o=5,b=100:4e,4e,4e,8c,p,g,4e,8c,p,g,4e,4p,4b,4b,4b,8c6,p,g,4d#,8c,p,g,4e,8p'
+
+        - type: command
+          text: ' Mission Impossible '
+          on_value:
+            then:
+                - rtttl.play: 'mission_imp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d'
+        - type: command
+          text: ' Barbie Girl '
+          on_value:
+            then:
+                - rtttl.play: 'Barbie Girl:d=8,o=6,b=125:g#,e,g#,c#6,4a,4p,f#,d#,f#,b,4g#,f#,e,4p,e,c#,4f#,4c#,4p,f#,e,4g#,4f#'
+    - type: menu
+      text: ' Settings ⏵ '
+      items:
+        - type: back
+          text: ' ⏴ Back '
+        - type: number
+          text: ' Brightness '
+          number: screen_brightness
+        - type: command
+          text: !lambda |-
+            return std::string(" Rumble [") + (id(global_game_rumble) ? "ON" : "OFF") + "]";
+          on_value:
+            then:
+              - if:
+                  condition:
+                    lambda: 'return id(global_game_rumble);'
+                  then:
+                    - switch.turn_off: switch_game_rumble
+                  else:
+                    - switch.turn_on: switch_game_rumble
+        - type: command
+          text: !lambda |-
+            return std::string(" Sound [") + (id(global_game_sound) ? "ON" : "OFF") + "]";
+          on_value:
+            then:
+              - if:
+                  condition:
+                    lambda: 'return id(global_game_sound);'
+                  then:
+                    - switch.turn_off: switch_game_sound
+                  else:
+                    - switch.turn_on: switch_game_sound
+        - type: number
+          text: ' Volume '
+          number: buzzer_volume
+        - type: command
+          text: ' System '
+          on_value:
+            then:
+                - display_menu.hide: main_menu
+                - display.page.show: page_system
+        - type: command
+          text: " Restart "
+          on_value:
+            then:
+              - logger.log: "Restarting ESP32..."
+              - delay: 100ms
+              - button.press: restart_button
+    - type: command
+      text: ' Close '
+      on_value:
+        then:
+          - display_menu.hide: main_menu
+
+graph:
+  # Show bare-minimum auto-ranged graph
+  - id: wifi_graph
+    #duration: 150s
+    duration: 60s
+    # width: 124
+    # height: 28
+    width: 124
+    height: 16
+    traces:
+      - sensor: wifi_rssi
+        line_thickness: 2
+        continuous: True
+
+
+################################################################
+# Output / Sound / beeper
+################################################################
+output:
+  - platform: ledc
+    pin: GPIO05
+    id: gpio_05_pwm
+
+rtttl:
+  output: gpio_05_pwm
+  id: rtttl_player
+  gain: 2%
+
+
+################################################################
+# Display / Pages
+################################################################
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 128x64"
+    address: 0x3C
+    invert: false
+    contrast: 50%
+    id: display1
+    # update_interval: 1s
+    # update_interval: 100ms
+    update_interval: 33ms
+    auto_clear_enabled: true
+    # update_interval: 16ms
+
+    pages:
+
+      - id: page_main
+        lambda: !include "screens/clock.cpp"
+
+      - id: page_system
+        lambda: !include "screens/system.cpp"
+
+      - id: page_animation_spin
+        lambda: !include "games/demos/spin.cpp"
+
+      - id: page_animation_dvd_screen_saver
+        lambda: !include "games/demos/dvd_screen_saver.cpp"
+
+      - id: page_game_breakout
+        lambda: !include "games/breakout.cpp"
+
+      - id: page_game_snake
+        lambda: !include "games/snake.cpp"

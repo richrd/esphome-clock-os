@@ -2,8 +2,8 @@
     // Config
     int screen_w = it.get_width();
     int screen_h = it.get_height();
-    // int frames_per_update = 7; // Good initial speed
-    int frames_per_update = 12;
+    // global_game_snake_speed: 1 (slow) to 20 (fast)
+    int frames_per_update = 21 - id(global_game_snake_speed);
     int max_x = 25;
     int max_y = 11;
     int pickup_score = 10;
@@ -33,15 +33,53 @@
     };
 
     int PICKUP_TYPE_NORMAL = 1;
-    static std::vector<Pickup> pickups = {
-        {15, 10, PICKUP_TYPE_NORMAL},
-    };
+    static std::vector<Pickup> pickups = {};
 
     static std::vector<BodyPart> snake_body = {
         {4, 5},
         {5, 5},
         {6, 5},
     };
+
+    auto spawn_pickups = [&]()
+    {
+        // Number of pickups to maintain on the board
+        static int pickup_count = 4;
+
+        // Only spawn pickups if we have fewer than pickup_count
+        while (pickups.size() < pickup_count) {
+            // Spawn at random location not occupied by snake or existing pickups
+            int px = 0;
+            int py = 0;
+            bool valid_position = false;
+            while (!valid_position) {
+                px = esp_random() % max_x;
+                py = esp_random() % max_y;
+                valid_position = true;
+                // Check snake body
+                for (auto part : snake_body) {
+                    if (part.x == px && part.y == py) {
+                    valid_position = false;
+                    break;
+                    }
+                }
+                // Check existing pickups
+                if (valid_position) {
+                    for (auto p : pickups) {
+                        if (p.x == px && p.y == py) {
+                            valid_position = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            pickups.push_back({px, py, PICKUP_TYPE_NORMAL});
+        }
+    };
+    
+    if (pickups.empty()) {
+        spawn_pickups();
+    }
 
     auto reset_game = [&]()
     {
@@ -50,31 +88,13 @@
         direction_y = 0;
         score = 0;
         score_ticker = 0;
+        pickups = {};
+        spawn_pickups();
         snake_body = {
             {4, 5},
             {5, 5},
             {6, 5},
         };
-    };
-
-    auto spawn_pickup = [&]()
-    {
-        // Spawn at random location not occupied by snake
-        int px = 0;
-        int py = 0;
-        bool valid_position = false;
-        while (!valid_position) {
-            px = esp_random() % max_x;
-            py = esp_random() % max_y;
-            valid_position = true;
-            for (auto part : snake_body) {
-                if (part.x == px && part.y == py) {
-                    valid_position = false;
-                    break;
-                }
-            }
-        }
-        pickups.push_back({px, py, PICKUP_TYPE_NORMAL});
     };
 
     auto rumble = [&]() {
@@ -88,6 +108,9 @@
     // Game logic
     ////////////////////////////////
     frame++;
+    if (frame > frames_per_update) {
+        frame = 0;
+    }
 
     // Animate score ticker
     if (score_ticker < score) {
@@ -148,10 +171,29 @@
 
         int new_x = head.x + direction_x;
         int new_y = head.y + direction_y;
+        bool collided_with_wall = false;
         // Check for wall collisions
         if (new_x < 0 || new_x >= max_x || new_y < 0 || new_y >= max_y) {
-            reset_game();
-        } else {
+            if (id(global_game_snake_walls)) {
+                // Collided with wall - game over
+                collided_with_wall = true;
+                reset_game();
+            } else {
+                // Wrap around
+                if (new_x < 0) {
+                    new_x = max_x - 1;
+                } else if (new_x >= max_x) {
+                    new_x = 0;
+                }
+                if (new_y < 0) {
+                    new_y = max_y - 1;
+                } else if (new_y >= max_y) {
+                    new_y = 0;
+                }
+            }
+        }
+
+        if(!collided_with_wall) {
             // Check for collision with self
             bool collided = false;
             for (const auto& part : snake_body) {
@@ -170,7 +212,7 @@
                     pickups.erase(it);
                     score = score + pickup_score;
                     rumble();
-                    spawn_pickup();
+                    spawn_pickups();
                     break;
                     }
                 }
@@ -205,12 +247,40 @@
 
     auto draw_score = [&]()
     {
+        // Draw score in top right of status bar
         int padding_x = 2;
         it.printf(screen_w - padding_x, -2, id(font_xxs), TextAlign::TOP_RIGHT, "%d", score_ticker);
     };
 
+    auto draw_direction = [&]()
+    {
+        // Draw knob direction indicator in top center of status bar
+        if (id(global_knob_direction) == 0) {
+            return;
+        }
+        int direction_icon_w = 5;
+        int direction_icon_h = 6;
+        int direction_icon_x = (screen_w / 2) - (direction_icon_w / 2);
+        int direction_icon_y = 1;
+
+        it.draw_pixel_at(direction_icon_x + 2, direction_icon_y, COLOR_ON);
+        it.draw_pixel_at(direction_icon_x + 2, direction_icon_y+4, COLOR_ON);
+        it.line(direction_icon_x, direction_icon_y+2, direction_icon_x+direction_icon_w-1, direction_icon_y+2);
+        if (id(global_knob_direction) == 1) {
+            // Clockwise
+            it.line(direction_icon_x, direction_icon_y+2, direction_icon_x, direction_icon_y+direction_icon_h-1);
+            it.line(direction_icon_x+3, direction_icon_y+1, direction_icon_x+3, direction_icon_y+3);
+        } else if (id(global_knob_direction) == -1) {
+            // Anti-clockwise
+            it.line(direction_icon_x+direction_icon_w-1, direction_icon_y+2, direction_icon_x+direction_icon_w-1, direction_icon_y+direction_icon_h-1);
+            it.line(direction_icon_x+1, direction_icon_y+1, direction_icon_x+1, direction_icon_y+3);
+        }
+    };
+
+
     it.fill(COLOR_OFF);
     draw_score();
+    draw_direction();
 
     // Snake and grid
     int box_size = 4;
@@ -222,7 +292,11 @@
         }
     }
     */
-    it.rectangle(0, offset_y, max_x * (box_size+1)-1, max_y * (box_size+1)-1);
+    if(id(global_game_snake_walls)) {
+        // Draw border
+        it.rectangle(0, offset_y, max_x * (box_size+1)-1, max_y * (box_size+1)-1);
+    }
+
     for (auto part : snake_body) {
         it.filled_rectangle(part.x * (box_size+1), offset_y + part.y * (box_size+1), box_size, box_size);
     }

@@ -426,13 +426,13 @@ graphical_display_menu:
               on_value:
                 then:
                     - display_menu.hide: main_menu
-                    - display.page.show: page_animation_spin
+                    - display.page.show: page_demo_spin
             - type: command
               text: ' DVD '
               on_value:
                 then:
                     - display_menu.hide: main_menu
-                    - display.page.show: page_animation_dvd_screen_saver
+                    - display.page.show: page_demo_dvd_screen_saver
     - type: menu
       text: ' Sounds ⏵ '
       items:
@@ -495,7 +495,7 @@ graphical_display_menu:
           text: ' Volume '
           number: buzzer_volume
         - type: command
-          text: ' System '
+          text: ' System ⏵ '
           on_value:
             then:
                 - display_menu.hide: main_menu
@@ -566,10 +566,10 @@ display:
       - id: page_system
         lambda: !include "screens/system.cpp"
 
-      - id: page_animation_spin
+      - id: page_demo_spin
         lambda: !include "games/demos/spin.cpp"
 
-      - id: page_animation_dvd_screen_saver
+      - id: page_demo_dvd_screen_saver
         lambda: !include "games/demos/dvd_screen_saver.cpp"
 
       - id: page_game_breakout

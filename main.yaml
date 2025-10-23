@@ -400,6 +400,8 @@ graphical_display_menu:
               on_value:
                 then:
                     - display_menu.hide: main_menu
+                    # Reset knob direction when resuming so menu usage doesn't interfere with game
+                    - lambda: 'id(global_knob_direction) = 0;'
                     - display.page.show: page_game_snake
             - type: number
               text: ' Speed '

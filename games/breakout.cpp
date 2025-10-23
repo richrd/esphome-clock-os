@@ -3,9 +3,10 @@
     int screen_w = it.get_width();
     int screen_h = it.get_height();
     int ball_size = 3;
-    int paddle_w_initial = 16;
+    int paddle_w_initial = 18;
     int paddle_w_max = 44;
-    int paddle_w_change_step = 4;
+    int paddle_w_increase = 4;
+    int paddle_w_decrease = 3;
     int paddle_h = 3;
     int brick_w = 15;
     int brick_h = 7;
@@ -15,20 +16,20 @@
     int pause_duration = 100; // 100 frames, at 30fps = ~3 seconds
     int points_per_brick = 5;
     int points_per_paddle_hit = 10;
-    bool auto_play = true;
 
     // Sounds
     std::string sound_brick_hit = "Untitled:d=32,o=7,b=250:f,a";
     std::string sound_paddle_hit = "Untitled:d=32,o=7,b=250:f#";
     std::string sound_ball_lost = "Untitled:d=32,o=6,b=250:g#,c#,f#";
-    std::string sound_shoot = "Untitled:d=32,o=7,b=250:d,c#,c"; // "Untitled:d=16,o=7,b=500:c6,e6,g6,c7";
-    std::string sound_shield_hit = "Untitled:d=32,o=7,b=285:c,p,a,p,e";
-    std::string sound_extra_life = "Untitled:d=32,o=7,b=285:c#,p,p,e,g#,a#,p,p,p,a#,p,p,p,a#";
+    std::string sound_shoot = "Untitled:d=32,o=7,b=250:d,c#,c";
+    std::string sound_shield_hit = "Untitled:d=32,o=5,b=250:16c";
+    std::string sound_extra_life = "Untitled:d=32,o=7,b=200:c#,d#,f,g";
 
     // Unused sounds:
     // - Semi positive blip blip blip "Untitled:d=32,o=7,b=250:a,p,a#,p,p,p,f#,p,p,p,p,c"
 
-    struct Ball {
+    struct Ball
+    {
         float x;
         float y;
         int direction_x;
@@ -36,7 +37,8 @@
         bool alive;
     };
 
-    struct Projectile {
+    struct Projectile
+    {
         float x;
         float y;
     };
@@ -49,11 +51,11 @@
     static float speed_initial = .9f;
     static float speed = speed_initial;
     static float speed_max = 5.0f;
-    static float speed_increase_factor = 1.05f;
+    static float speed_increase_factor = 1.04f;
 
     static int lives_initial = 3;
     static int lives = lives_initial;
-    static int lives_max = 5;
+    static int lives_max = 6;
     static int score = 0;
     static int score_ticker = 0;
     static int level = 0;
@@ -88,8 +90,10 @@
     {
         int ball_position_x = 64; // Middle by default
         int ball_direction_x = 0;
-        for (int b = 0; b < max_balls; b++) {
-            if (balls[b].alive) {
+        for (int b = 0; b < max_balls; b++)
+        {
+            if (balls[b].alive)
+            {
                 ball_position_x = balls[b].x;
                 ball_direction_x = balls[b].direction_x;
                 break;
@@ -114,11 +118,11 @@
     int BRICK_TYPE_EXTRA_LIFE = 4;
     int BRICK_TYPE_WONKY_BRICKS = 5;
     int BRICK_TYPE_SHOOTER = 6;
+    int BRICK_TYPE_STATIC = 7;
     // TODO:
     // int BRICK_TYPE_UP_ONLY = 4;
     // int BRICK_TYPE_INVERT_SCREEN = 5; // (flip screen for x amount of time or until the next level)
     // ? = explode adjacent bricks
-
 
     struct Brick
     {
@@ -140,7 +144,7 @@
         {48, 0, 0, 0},
         {64, 0, 0, 0},
         {80, 0, 0, 0},
-        {96, 0, 0, 0}, 
+        {96, 0, 0, 0},
         {112, 0, 0, 0},
         // 2
         {0, 8, 0, 0},
@@ -215,7 +219,6 @@
         }
     };
 
-
     ////////////////////////////////
     // Functions
     ////////////////////////////////
@@ -285,12 +288,16 @@
         level++;
         pause_frames = pause_duration;
         level_started = false;
-        if (level > 1) {
+        if (level > 1)
+        {
             speed = speed_initial * powf(speed_increase_factor, level - 1);
-            if (speed > speed_max) {
+            if (speed > speed_max)
+            {
                 speed = speed_max;
             }
-        } else {
+        }
+        else
+        {
             speed = speed_initial;
         }
 
@@ -309,20 +316,21 @@
         int start_brick = 8;
         int end_brick = brick_count - 24;
 
-        // Add new row at level 3
-        if (level > 2)
+        // Add new row at level 4
+        if (level > 3)
         {
             end_brick = brick_count - 16;
         }
 
-        // Add new row at level 5
-        if (level > 4)
+        // Add new row at level 6
+        if (level > 5)
         {
             end_brick = brick_count - 8;
         }
 
         // Add new row at level 6
-        if (level > 5) {
+        if (level > 10)
+        {
             end_brick = brick_count;
         }
 
@@ -331,16 +339,23 @@
             bricks[i].hp = brick_hp;
         }
 
-
         // Place random bricks according to level number
         int assigned = 0;
         int max_assigned = level;
-        if (max_assigned > 40) {
+
+        if (max_assigned < 2)
+        {
+            max_assigned = 2;
+        }
+        if (max_assigned > 40)
+        {
             max_assigned = 40;
         }
-        while (assigned < max_assigned) {
+        while (assigned < max_assigned)
+        {
             int idx = 8 + (esp_random() % (end_brick - 8));
-            if (bricks[idx].hp > 0 && bricks[idx].type == BRICK_TYPE_NORMAL) {
+            if (bricks[idx].hp > 0 && bricks[idx].type == BRICK_TYPE_NORMAL)
+            {
                 // Randomly choose between multiple brick types
                 int rtype_choices[] = {
                     BRICK_TYPE_SHIELD,
@@ -349,45 +364,56 @@
                     BRICK_TYPE_EXTRA_LIFE,
                     BRICK_TYPE_WONKY_BRICKS,
                     BRICK_TYPE_SHOOTER,
+                    // BRICK_TYPE_STATIC,
                 };
-                int rtype = rtype_choices[esp_random() % (sizeof(rtype_choices)/sizeof(rtype_choices[0]))];
+                int rtype = rtype_choices[esp_random() % (sizeof(rtype_choices) / sizeof(rtype_choices[0]))];
                 bricks[idx].type = rtype;
                 assigned++;
             }
         }
     };
 
-    auto add_new_ball = [&]() {
-        for (int i = 0; i < max_balls; i++) {
-            if (!balls[i].alive) {
+    auto add_new_ball = [&]()
+    {
+        for (int i = 0; i < max_balls; i++)
+        {
+            if (!balls[i].alive)
+            {
                 balls[i].alive = true;
                 balls[i].x = paddle_x + (paddle_w / 2);
-                balls[i].y = 0; // Place new ball at the top of the screen
+                balls[i].y = 0;                               // Place new ball at the top of the screen
                 balls[i].direction_x = (i % 2 == 0) ? 1 : -1; // Alternate direction for variety
-                balls[i].direction_y = 1; // Start moving downwards
-                break; // Only add one ball at a time
+                balls[i].direction_y = 1;                     // Start moving downwards
+                break;                                        // Only add one ball at a time
             }
         }
     };
 
-    auto play_sound = [&](std::string sound) {
-        if (id(global_game_sound)) {
+    auto play_sound = [&](std::string sound)
+    {
+        if (id(global_game_sound))
+        {
             id(rtttl_player).stop();
             id(rtttl_player).play(sound);
         }
     };
 
-    auto shoot_projectile = [&]() {
-        if (projectiles.size() >= max_projectiles) {
+    auto shoot_projectile = [&]()
+    {
+        if (projectiles.size() >= max_projectiles)
+        {
             return;
         }
-        if (shooter_level == 1) {
+        if (shooter_level == 1)
+        {
             play_sound(sound_shoot);
             Projectile p;
             p.x = paddle_x + (paddle_w / 2);
             p.y = paddle_y - 2;
             projectiles.push_back(p);
-        } else if (shooter_level == 2) {
+        }
+        else if (shooter_level == 2)
+        {
             // Shoot from alternating sides of the paddle
             play_sound(sound_shoot);
             // Left side
@@ -403,8 +429,10 @@
         }
     };
 
-    auto rumble = [&]() {
-        if (id(global_game_rumble)) {
+    auto rumble = [&]()
+    {
+        if (id(global_game_rumble))
+        {
             id(rumble_output).turn_on();
             rumble_frames = rumble_duration;
         }
@@ -423,70 +451,86 @@
 
         play_sound(sound_brick_hit);
 
-        if (bricks[id].type == BRICK_TYPE_EXTRA_BALL) {
+        if (bricks[id].type == BRICK_TYPE_EXTRA_BALL)
+        {
             bricks[id].hp = 0;
             add_new_ball();
         }
 
-        if (bricks[id].type == BRICK_TYPE_EXTRA_LIFE) {
+        if (bricks[id].type == BRICK_TYPE_EXTRA_LIFE)
+        {
             bricks[id].hp = 0;
-            if (lives < lives_max) {
+            if (lives < lives_max)
+            {
                 lives++;
                 play_sound(sound_extra_life);
             }
         }
 
-        if (bricks[id].type == BRICK_TYPE_SHIELD) {
+        if (bricks[id].type == BRICK_TYPE_SHIELD)
+        {
             bricks[id].hp = 0;
-            shield_amount++;
+            shield_amount += 1;
         }
 
-        if (bricks[id].type == BRICK_TYPE_WIDER_PADDLE) {
+        if (bricks[id].type == BRICK_TYPE_WIDER_PADDLE)
+        {
             bricks[id].hp = 0;
-            paddle_w += paddle_w_change_step;
-            if (paddle_w > paddle_w_max) {
+            paddle_w += paddle_w_increase;
+            if (paddle_w > paddle_w_max)
+            {
                 paddle_w = paddle_w_max;
             }
         }
 
-        if (bricks[id].type == BRICK_TYPE_WONKY_BRICKS) {
+        if (bricks[id].type == BRICK_TYPE_WONKY_BRICKS)
+        {
             bricks[id].hp = 0;
             randomise_brick_positions();
         }
 
-        if (bricks[id].type == BRICK_TYPE_SHOOTER) {
+        if (bricks[id].type == BRICK_TYPE_SHOOTER)
+        {
             bricks[id].hp = 0;
             shooter_level += 1;
-            if (shooter_level > 2) {
+            if (shooter_level > 2)
+            {
                 shooter_level = 2;
             }
         }
-
     };
 
-    auto update_projectiles = [&]() {
-        for (int i = 0; i < projectiles.size(); ) {
+    auto update_projectiles = [&]()
+    {
+        for (int i = 0; i < projectiles.size();)
+        {
             projectiles[i].y -= 2; // Move projectile upwards
-            if (projectiles[i].y < 0) {
+            if (projectiles[i].y < 0)
+            {
                 // Remove projectile if it goes off-screen
                 projectiles.erase(projectiles.begin() + i);
-            } else {
+            }
+            else
+            {
                 i++;
             }
         }
 
         // Check for projectile collisions with bricks
-        for (int p = 0; p < projectiles.size(); ) {
+        for (int p = 0; p < projectiles.size();)
+        {
             bool hit = false;
-            for (int i = 0; i < brick_count; i++) {
-                Brick& brick = bricks[i];
-                if (brick.hp == 0) continue;
+            for (int i = 0; i < brick_count; i++)
+            {
+                Brick &brick = bricks[i];
+                if (brick.hp == 0)
+                    continue;
                 if (
                     projectiles[p].x >= brick.x &&
                     projectiles[p].x < brick.x + brick_w &&
                     projectiles[p].y >= brick.y &&
-                    projectiles[p].y < brick.y + brick_h
-                ) {
+                    projectiles[p].y < brick.y + brick_h)
+                {
                     on_brick_hit(i);
                     // Remove projectile
                     projectiles.erase(projectiles.begin() + p);
@@ -494,15 +538,19 @@
                     break;
                 }
             }
-            if (!hit) {
+            if (!hit)
+            {
                 p++;
             }
         }
     };
 
-    auto any_balls_alive = [&]() -> bool {
-        for (int i = 0; i < max_balls; i++) {
-            if (balls[i].alive) {
+    auto any_balls_alive = [&]() -> bool
+    {
+        for (int i = 0; i < max_balls; i++)
+        {
+            if (balls[i].alive)
+            {
                 return true;
             }
         }
@@ -528,14 +576,30 @@
     }
 
     // Animate score ticker
-    if (score_ticker < score) {
-        score_ticker++;
+    if (score_ticker < score)
+    {
+        // Make sure it doesn't lag too far behind
+        int score_difference = score - score_ticker;
+        if (score_difference >= 100)
+        {
+            score_ticker += 100;
+        }
+        else if (score_difference >= 10)
+        {
+            score_ticker += 10;
+        }
+        else
+        {
+            score_ticker += 1;
+        }
     }
 
     // Handle rumble feedback
-    if (rumble_frames > 0) {
+    if (rumble_frames > 0)
+    {
         rumble_frames--;
-        if (rumble_frames == 0) {
+        if (rumble_frames == 0)
+        {
             id(rumble_output).turn_off();
         }
     }
@@ -561,16 +625,19 @@
         level_started = true;
 
         // Shoot
-        if (shooter_level && (frame % 15 == 0)) {
+        if (shooter_level && (frame % 15 == 0))
+        {
             shoot_projectile();
         }
 
         update_projectiles();
 
         // Iterate over all balls and handle movement and collisions
-        for (int b = 0; b < max_balls; b++) {
-            Ball& ball = balls[b];
-            if (!ball.alive) continue;
+        for (int b = 0; b < max_balls; b++)
+        {
+            Ball &ball = balls[b];
+            if (!ball.alive)
+                continue;
 
             ball.x += (ball.direction_x * speed);
             ball.y += (ball.direction_y * speed);
@@ -590,12 +657,10 @@
             }
 
             // Check if ball hits paddle
-            if (true
-                && ball.direction_y == 1  // Ball is moving downwards
-                && ball.x + ball_size >= paddle_x  // Ball right edge past paddle left edge
-                && ball.x <= paddle_x + paddle_w  // Ball left edge before paddle right edge
-                && ball.y + ball_size > screen_h - paddle_h  // Ball bottom edge past paddle top edge
-                
+            if (true && ball.direction_y == 1               // Ball is moving downwards
+                && ball.x + ball_size >= paddle_x           // Ball right edge past paddle left edge
+                && ball.x <= paddle_x + paddle_w            // Ball left edge before paddle right edge
+                && ball.y + ball_size > screen_h - paddle_h // Ball bottom edge past paddle top edge
             )
             {
                 ball.direction_y = -1;
@@ -613,26 +678,29 @@
                     ball.direction_x = -1;
                 }
             }
-
-            // Bottom (missed paddle)
-            if (ball.y + ball_size > screen_h)
+            else if (ball.y + ball_size > screen_h)
             {
-                if (shield_amount) {
+                if (shield_amount)
+                {
                     ball.direction_y = -1;
                     shield_amount--;
                     play_sound(sound_shield_hit);
-                } else {
+                }
+                else
+                {
                     ball.alive = false;
 
                     play_sound(sound_ball_lost);
-                    
+
                     // Shorten paddle as penalty
-                    paddle_w -= paddle_w_change_step;
-                    if (paddle_w < paddle_w_initial) {
+                    paddle_w -= paddle_w_decrease;
+                    if (paddle_w < paddle_w_initial)
+                    {
                         paddle_w = paddle_w_initial;
                     }
 
-                    if(!any_balls_alive()) {
+                    if (!any_balls_alive())
+                    {
                         lives--;
                         place_ball_on_paddle();
                         ball.direction_y = -1;
@@ -644,7 +712,7 @@
             // Brick collisions
             for (int i = 0; i < brick_count; i++)
             {
-                Brick& brick = bricks[i];
+                Brick &brick = bricks[i];
 
                 if (brick.hp == 0)
                 {
@@ -676,9 +744,7 @@
                 }
                 // Vertical collisions
                 if (
-                    ball.x >= brick.x
-                    && ball.x + ball_size <= brick.x + brick_w
-                )
+                    ball.x >= brick.x && ball.x + ball_size <= brick.x + brick_w)
                 {
                     // Collision on top edge (ball moving down)
                     if (ball.direction_y == 1)
@@ -700,7 +766,6 @@
                     }
                 }
             }
-
         }
     }
 
@@ -785,7 +850,8 @@
             }
 
             // Special rendering for multiball brick
-            if (brick.type == BRICK_TYPE_EXTRA_BALL) {
+            if (brick.type == BRICK_TYPE_EXTRA_BALL)
+            {
                 // Draw brick outline with corners
                 draw_special_brick_corners(bricks[i].x, bricks[i].y);
 
@@ -803,7 +869,8 @@
                 continue;
             }
 
-            if (brick.type == BRICK_TYPE_SHIELD) {
+            if (brick.type == BRICK_TYPE_SHIELD)
+            {
                 draw_special_brick_corners(bricks[i].x, bricks[i].y);
 
                 // Draw a horizontal line at the bottom, offset by 4 pixels from each edge
@@ -812,7 +879,8 @@
                 continue;
             }
 
-            if (brick.type == BRICK_TYPE_WIDER_PADDLE) {
+            if (brick.type == BRICK_TYPE_WIDER_PADDLE)
+            {
                 draw_special_brick_corners(bricks[i].x, bricks[i].y);
 
                 // Draw double arrows pointing outwards
@@ -826,7 +894,8 @@
                 continue;
             }
 
-            if (brick.type == BRICK_TYPE_EXTRA_LIFE) {
+            if (brick.type == BRICK_TYPE_EXTRA_LIFE)
+            {
                 draw_special_brick_corners(bricks[i].x, bricks[i].y);
                 int heart_x = bricks[i].x + (brick_w / 2) - 3;
                 int heart_y = bricks[i].y + (brick_h / 2) - 2;
@@ -834,11 +903,15 @@
                 continue;
             }
 
-            if (brick.type == BRICK_TYPE_WONKY_BRICKS) {
+            if (brick.type == BRICK_TYPE_WONKY_BRICKS)
+            {
                 // Draw wonky brick (just a filled rectangle with a wavy pattern)
-                for (int wx = 0; wx < brick_w; wx++) {
-                    for (int wy = 0; wy < brick_h; wy++) {
-                        if (((wx + wy + (frame / 2)) % 4) < 2) {
+                for (int wx = 0; wx < brick_w; wx++)
+                {
+                    for (int wy = 0; wy < brick_h; wy++)
+                    {
+                        if (((wx + wy + (frame / 2)) % 4) < 2)
+                        {
                             it.draw_pixel_at(bricks[i].x + wx, bricks[i].y + wy, COLOR_ON);
                         }
                     }
@@ -846,7 +919,19 @@
                 continue;
             }
 
-            if (brick.type == BRICK_TYPE_SHOOTER) {
+            if (brick.type == BRICK_TYPE_STATIC)
+            {
+                // Draw 35 random pixels within the brick area
+                for (int p = 0; p < 35; ++p) {
+                    int rx = bricks[i].x + (esp_random() % brick_w);
+                    int ry = bricks[i].y + (esp_random() % brick_h);
+                    it.draw_pixel_at(rx, ry, COLOR_ON);
+                }
+                continue;
+            }
+
+            if (brick.type == BRICK_TYPE_SHOOTER)
+            {
                 // Draw brick outline with corners
                 draw_special_brick_corners(bricks[i].x, bricks[i].y);
 
@@ -863,14 +948,23 @@
                 continue;
             }
 
-            if (brick.hp > 3)
+            if (brick.hp > 4)
             {
                 it.filled_rectangle(bricks[i].x, bricks[i].y, brick_w, brick_h);
+            }
+            else if (brick.hp == 4)
+            {
+                it.rectangle(bricks[i].x, bricks[i].y, brick_w, brick_h);
+                it.filled_rectangle(bricks[i].x + 2, bricks[i].y + 2, brick_w - 4, brick_h - 4);
             }
             else if (brick.hp == 3)
             {
                 it.rectangle(bricks[i].x, bricks[i].y, brick_w, brick_h);
-                it.filled_rectangle(bricks[i].x + 2, bricks[i].y + 2, brick_w - 4, brick_h - 4);
+                it.filled_rectangle(bricks[i].x + 2, bricks[i].y + 2, 2, brick_h - 4);
+                it.line(bricks[i].x + 5, bricks[i].y + 2, bricks[i].x + 5, bricks[i].y + 4);
+                it.line(bricks[i].x + 7, bricks[i].y + 2, bricks[i].x + 7, bricks[i].y + 4);
+                it.line(bricks[i].x + 9, bricks[i].y + 2, bricks[i].x + 9, bricks[i].y + 4);
+                it.filled_rectangle(bricks[i].x + 11, bricks[i].y + 2, 2, brick_h - 4);
             }
             else if (brick.hp == 2)
             {
@@ -903,13 +997,15 @@
 
     auto draw_shield = [&]()
     {
-        if (shield_amount) {
+        if (shield_amount)
+        {
             // Draw shield under paddle
-            int shield_y = screen_h-1;
+            int shield_y = screen_h - 1;
             int shield_x_start = 0;
             // Draw dashed shield line under paddle
             int x = shield_x_start;
-            while (x < screen_w) {
+            while (x < screen_w)
+            {
                 int dash = std::min(shield_amount, screen_w - x);
                 it.line(x, shield_y, x + dash - 1, shield_y);
                 x += dash + 1; // dash width + 1px gap
@@ -919,7 +1015,8 @@
 
     auto draw_projectiles = [&]()
     {
-        for (int i = 0; i < projectiles.size(); i++) {
+        for (int i = 0; i < projectiles.size(); i++)
+        {
             it.filled_rectangle(projectiles[i].x, projectiles[i].y, 1, 4);
         }
     };
@@ -939,8 +1036,10 @@
     draw_shield();
 
     // Balls
-    for (int b = 0; b < max_balls; b++) {
-        if (balls[b].alive) {
+    for (int b = 0; b < max_balls; b++)
+    {
+        if (balls[b].alive)
+        {
             it.filled_rectangle(balls[b].x, balls[b].y, ball_size, ball_size);
         }
     }
@@ -974,7 +1073,8 @@
 
         int overlay_h_padding = 10;
         int overlay_outline = 2;
-        int text_overlay_y = (screen_h / 2 - overlay_height / 2);
+        int overlay_y_offset = 4;
+        int text_overlay_y = (screen_h / 2 - overlay_height / 2) - overlay_y_offset;
         it.filled_rectangle(
             overlay_h_padding - overlay_outline,
             text_overlay_y - overlay_outline,
@@ -986,16 +1086,18 @@
         int progress_bar_padding = 2;
         int progress_bar_max = (screen_w - overlay_h_padding * 2) - progress_bar_padding * 2;
         int progress_bar_width = (progress_bar_max * (pause_duration - pause_frames)) / pause_duration;
-        it.rectangle(overlay_h_padding+progress_bar_padding, text_overlay_y+overlay_height-progress_bar_padding, progress_bar_width, 3);
+        it.rectangle(overlay_h_padding + progress_bar_padding, text_overlay_y + overlay_height - progress_bar_padding, progress_bar_width, 3);
 
         // Draw centered text
         int text_center_x = screen_w / 2;
-        int text_center_y = screen_h / 2;
+        int text_center_y = screen_h / 2 - overlay_y_offset;
         if (text2 == "")
         {
             it.printf(text_center_x, text_center_y, id(font_sm), TextAlign::CENTER, text1.c_str());
-        } else {
-            it.printf(text_center_x, text_center_y-5, id(font_sm), TextAlign::CENTER, text1.c_str());
-            it.printf(text_center_x, text_center_y+5, id(font_xxs), TextAlign::CENTER, text2.c_str());
+        }
+        else
+        {
+            it.printf(text_center_x, text_center_y - 5, id(font_sm), TextAlign::CENTER, text1.c_str());
+            it.printf(text_center_x, text_center_y + 5, id(font_xxs), TextAlign::CENTER, text2.c_str());
         }
     }

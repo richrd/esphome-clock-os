@@ -285,20 +285,88 @@
     // Snake and grid
     int box_size = 4;
     int offset_y = 8;
+
     /*
+    // Draw grid
     for (int y = 0; y < max_y; y++) {
         for (int x = 0; x < max_x; x++) {
             it.rectangle(x * (box_size+1), offset_y + y * (box_size+1), box_size, box_size);
         }
     }
     */
+
     if(id(global_game_snake_walls)) {
         // Draw border
         it.rectangle(0, offset_y, max_x * (box_size+1)-1, max_y * (box_size+1)-1);
+    } else {
+        // Draw corners to indicate the playing field without full border, 4x4 L shapes in each corner
+        int l_size = 4;
+        int thickness = 1;
+
+        // Top-left corner
+        it.filled_rectangle(0, offset_y, l_size, thickness); // horizontal
+        it.filled_rectangle(0, offset_y, thickness, l_size); // vertical
+
+        // Top-right corner
+        int right_x = max_x * (box_size + 1) - l_size;
+        it.filled_rectangle(right_x, offset_y, l_size, thickness); // horizontal
+        it.filled_rectangle(right_x + l_size - thickness, offset_y, thickness, l_size); // vertical
+
+        // Bottom-left corner
+        int bottom_y = offset_y + max_y * (box_size + 1) - l_size;
+        it.filled_rectangle(0, bottom_y + l_size - thickness, l_size, thickness); // horizontal
+        it.filled_rectangle(0, bottom_y, thickness, l_size); // vertical
+
+        // Bottom-right corner
+        it.filled_rectangle(right_x, bottom_y + l_size - thickness, l_size, thickness); // horizontal
+        it.filled_rectangle(right_x + l_size - thickness, bottom_y, thickness, l_size); // vertical
     }
 
-    for (auto part : snake_body) {
-        it.filled_rectangle(part.x * (box_size+1), offset_y + part.y * (box_size+1), box_size, box_size);
+    // Snake body
+    for (size_t i = 0; i < snake_body.size(); ++i) {
+        const auto& part = snake_body[i];
+        int x1 = part.x * (box_size + 1);
+        int y1 = offset_y + part.y * (box_size + 1);
+
+        it.filled_rectangle(x1, y1, box_size, box_size);
+
+        // Draw overlapping rectangle with previous part for continuity,
+        // but skip if wrapping occurred
+        if (i > 0) {
+            const auto& prev = snake_body[i - 1];
+            int dx = std::abs(part.x - prev.x);
+            int dy = std::abs(part.y - prev.y);
+
+            // If not wrapping (adjacent cells), draw connector
+            if ((dx == 1 && dy == 0) || (dx == 0 && dy == 1)) {
+                int x2 = prev.x * (box_size + 1);
+                int y2 = offset_y + prev.y * (box_size + 1);
+
+                int min_x = std::min(x1, x2);
+                int min_y = std::min(y1, y2);
+                int max_x = std::max(x1, x2);
+                int max_y = std::max(y1, y2);
+
+                // Draw a rectangle spanning both parts
+                it.filled_rectangle(min_x, min_y, max_x - min_x + box_size, max_y - min_y + box_size);
+            }
+            // else: wrapping occurred, skip drawing connector
+        }
+    }
+
+    // Draw full horizontal and vertical lines (crosshairs) through the head
+    BodyPart head = snake_body.back();
+    int head_cx = head.x * (box_size + 1) + box_size / 2;
+    int head_cy = offset_y + head.y * (box_size + 1) + box_size / 2;
+    // Horizontal line
+    for (int x = 0; x < max_x; ++x) {
+        int px = x * (box_size + 1) + box_size / 2;
+        it.draw_pixel_at(px, head_cy, COLOR_ON);
+    }
+    // Vertical line
+    for (int y = 0; y < max_y; ++y) {
+        int py = offset_y + y * (box_size + 1) + box_size / 2;
+        it.draw_pixel_at(head_cx, py, COLOR_ON);
     }
 
     for (auto pickup : pickups) {
@@ -310,6 +378,6 @@
         it.filled_rectangle(px - 1, py - 1, box_size + 2, box_size + 2);
 
         // Draw a cross inside the square
-        it.line(px - 1, py - 1, px + box_size, py + box_size);
-        it.line(px + box_size, py - 1, px - 1, py + box_size);
+        it.line(px - 1, py - 1, px + box_size, py + box_size, COLOR_OFF);
+        it.line(px + box_size, py - 1, px - 1, py + box_size, COLOR_OFF);
     }

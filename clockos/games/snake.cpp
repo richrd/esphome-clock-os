@@ -9,18 +9,6 @@
     int pickup_score = 10;
     int rumble_duration = 4;
 
-    // State
-    static int frame = 0;
-    static int rumble_frames = 0;
-    static int direction_x = 1; // 1=right, -1=left
-    static int direction_y = 0; // 1=down, -1=up
-    static int score = 0;
-    static int score_ticker = 0;
-
-    // This is defined in main.yaml and updated by the knob events
-    // When a game update cycle is completed the value is reset to 0
-    int knob_direction = id(global_knob_direction);
-
     struct BodyPart {
         int x;
         int y;
@@ -31,6 +19,20 @@
         int y;
         int type;
     };
+
+
+    // State
+    static int frame = 0;
+    static int rumble_frames = 0;
+    static int direction_x = 1; // 1=right, -1=left
+    static int direction_y = 0; // 1=down, -1=up
+    static int score = 0;
+    static int score_ticker = 0;
+    static BodyPart target_pickup = {-1, -1};
+
+    // This is defined in main.yaml and updated by the knob events
+    // When a game update cycle is completed the value is reset to 0
+    int knob_direction = id(global_knob_direction);
 
     int PICKUP_TYPE_NORMAL = 1;
     static std::vector<Pickup> pickups = {};
@@ -128,50 +130,95 @@
     int old_direction_x = direction_x;
     int old_direction_y = direction_y;
     
+    BodyPart head = snake_body.back();
     if (frame == frames_per_update) {
-        //ESP_LOGI("snake", "Move snake: knob_direction=%d", knob_direction);
-        BodyPart head = snake_body.back();
-        if (knob_direction == 1) {
-            // Knob turned clockwise
-            if (direction_x != 0) {
-                // Moving horizontally, turn vertically
-                if (direction_x == 1) {
-                    direction_y = 1;
-                } else {
-                    direction_y = -1;
+        if (!global_game_autoplay) {
+            //ESP_LOGI("snake", "Move snake: knob_direction=%d", knob_direction);
+            
+            if (knob_direction == 1) {
+                // Knob turned clockwise
+                if (direction_x != 0) {
+                    // Moving horizontally, turn vertically
+                    if (direction_x == 1) {
+                        direction_y = 1;
+                    } else {
+                        direction_y = -1;
+                    }
+                    direction_x = 0;
+                } else if (direction_y != 0) {
+                    // Moving vertically, turn horizontally
+                    if (direction_y == 1) {
+                        direction_x = -1;
+                    } else {
+                        direction_x = 1;
+                    }
+                    direction_y = 0;
                 }
-                direction_x = 0;
-            } else if (direction_y != 0) {
-                // Moving vertically, turn horizontally
-                if (direction_y == 1) {
-                    direction_x = -1;
-                } else {
-                    direction_x = 1;
-                }
-                direction_y = 0;
             }
-        }
-        else if (knob_direction == -1) {
-            // Knob turned anti-clockwise
-            if (direction_x != 0) {
-                // Moving horizontally, turn vertically
-                if (direction_x == 1) {
-                    direction_y = -1;
-                } else {
-                    direction_y = 1;
+            else if (knob_direction == -1) {
+                // Knob turned anti-clockwise
+                if (direction_x != 0) {
+                    // Moving horizontally, turn vertically
+                    if (direction_x == 1) {
+                        direction_y = -1;
+                    } else {
+                        direction_y = 1;
+                    }
+                    direction_x = 0;
+                } else if (direction_y != 0) {
+                    // Moving vertically, turn horizontally
+                    if (direction_y == 1) {
+                        direction_x = 1;
+                    } else {
+                        direction_x = -1;
+                    }
+                    direction_y = 0;
                 }
-                direction_x = 0;
-            } else if (direction_y != 0) {
-                // Moving vertically, turn horizontally
-                if (direction_y == 1) {
-                    direction_x = 1;
-                } else {
-                    direction_x = -1;
+            }
+        } else {
+            // Determine new target pickup
+            // Check if the current target pickup still exists
+            bool found = false;
+            for (const auto& p : pickups) {
+                if (p.x == target_pickup.x && p.y == target_pickup.y) {
+                    found = true;
+                    break;
                 }
-                direction_y = 0;
+            }
+            if (!found) {
+                target_pickup.x = -1;
+                target_pickup.y = -1;
+            }
+
+            // If current pickup doesn't exist, pick a new one
+            if (target_pickup.x == -1 && !pickups.empty()) {
+                target_pickup.x = pickups[0].x;
+                target_pickup.y = pickups[0].y;
+            }
+            
+            // Autoplay: turn towards pickup if it's left or right of the head
+            if (target_pickup.x != -1) {
+                if (direction_x != 0) { // Moving horizontally
+                    if (target_pickup.y < head.y && direction_y == 0) {
+                        direction_x = 0;
+                        direction_y = -1;
+                    } else if (target_pickup.y > head.y && direction_y == 0) {
+                        direction_x = 0;
+                        direction_y = 1;
+                    }
+                } else if (direction_y != 0) { // Moving vertically
+                    if (target_pickup.x < head.x && direction_x == 0) {
+                        direction_x = -1;
+                        direction_y = 0;
+                    } else if (target_pickup.x > head.x && direction_x == 0) {
+                        direction_x = 1;
+                        direction_y = 0;
+                    }
+                }
             }
         }
 
+        // Move snake forward
         int new_x = head.x + direction_x;
         int new_y = head.y + direction_y;
 
@@ -372,7 +419,7 @@
     }
 
     // Draw full horizontal and vertical lines (crosshairs) through the head
-    BodyPart head = snake_body.back();
+    head = snake_body.back();
     int head_cx = head.x * (box_size + 1) + box_size / 2;
     int head_cy = offset_y + head.y * (box_size + 1) + box_size / 2;
     // Horizontal line

@@ -1,0 +1,7 @@
+display:
+  #- id: clockos_display
+  #  platform: ssd1306_i2c
+  #  model: "SSD1306 128x64"
+    pages:
+      - id: page_game_snake
+        lambda: !include "../snake.cpp"

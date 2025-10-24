@@ -285,9 +285,12 @@
 
     auto setup_next_level = [&]()
     {
+        // Advance to next level (or setup level 1)
         level++;
         pause_frames = pause_duration;
         level_started = false;
+
+        // For levels above 1, increase speed progressively
         if (level > 1)
         {
             speed = speed_initial * powf(speed_increase_factor, level - 1);
@@ -306,6 +309,7 @@
         clear_projectiles();
         reset_balls();
 
+        // Reset shooter powerup each level
         shooter_level = 0;
 
         int brick_hp = level;

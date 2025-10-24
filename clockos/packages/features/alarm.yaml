@@ -1,0 +1,113 @@
+globals:
+  # Persist alarm time
+  # Alarm time (hour)
+  - id: global_feature_alarm_hour
+    type: int
+    initial_value: '9'
+    restore_value: yes
+
+  # Alarm time (minute)
+  - id: global_feature_alarm_minute
+    type: int
+    initial_value: '30'
+    restore_value: yes
+
+
+# On boot initialization
+esphome:
+  on_boot:
+    then:
+      # Initialize wake up time number components from persisted globals
+      - number.set:
+          id: feature_alarm_time_hour
+          value: !lambda "return id(global_feature_alarm_hour);"
+      - number.set:
+          id: feature_alarm_time_minute
+          value: !lambda "return id(global_feature_alarm_minute);"
+
+
+time:
+  # Home Assistant Time
+  - platform: homeassistant
+    # # Handle dynamic wake-up alarm
+    on_time:
+      - seconds: 0
+        then:
+          - if:
+              # Condition 1: Check if the alarm switch is on
+              condition:
+                switch.is_on: switch_wake_up_alarm
+              then:
+                - if:
+                    # Condition 2: Check if the current time matches the dynamic alarm time
+                    condition:
+                      lambda: |-
+                        // Get current hour and minute from the time component
+                        int current_hour = id(homeassistant_time).now().hour;
+                        int current_minute = id(homeassistant_time).now().minute;
+
+                        // Get the desired alarm hour and minute from your global variables
+                        // Ensure these are correctly defined as int or text_sensor that you can parse.
+                        // Assuming they are defined as int components:
+                        int alarm_hour = id(global_feature_alarm_hour);
+                        int alarm_minute = id(global_feature_alarm_minute);
+
+                        // Return true if current time matches the alarm time
+                        return (current_hour == alarm_hour) && (current_minute == alarm_minute);
+                    then:
+                      # The dynamic time has been reached and the alarm is enabled!
+                      # - script.execute: wake_up_alarm_sound
+                      - switch.turn_on: switch_feature_alarm_active
+
+
+# Handle alarm sound
+script:
+  - id: script_feature_alarm_sound
+    then:
+      - rtttl.play: 'Untitled:d=32,o=6,b=100:e,p,e,p,e,p,e,p,p,p,p,p,e,p,e,p,e,p,e,p,p,p,p,p,e,p,e,p,e,p,e,p,p,p,p,p,e,p,e,p,e,p,e'
+      - delay: 5s
+      - script.execute: script_feature_alarm_sound_repeat
+  - id: script_feature_alarm_sound_repeat
+    then:
+      - delay: 1s
+      - script.execute: script_feature_alarm_sound
+
+
+switch:
+  # If the alarm is currently playing
+  - platform: template
+    name: "Alarm active"
+    id: switch_feature_alarm_active
+    restore_mode: ALWAYS_OFF
+    optimistic: true
+    turn_on_action:
+      - script.execute: script_feature_alarm_sound
+    turn_off_action:
+      - script.stop: script_feature_alarm_sound
+      - rtttl.stop
+
+
+number:
+  # Wake up time hours/minutes
+  - platform: template
+    id: feature_alarm_time_hour
+    name: "Wake up hour"
+    min_value: 0
+    max_value: 23
+    step: 1
+    optimistic: true
+    on_value:
+      then:
+        - lambda: |-
+            id(global_feature_alarm_hour) = (int)x;
+  - platform: template
+    id: feature_alarm_time_minute
+    name: "Wake up minute"
+    min_value: 0
+    max_value: 59
+    step: 5
+    optimistic: true
+    on_value:
+      then:
+        - lambda: |-
+            id(global_feature_alarm_minute) = (int)x;

@@ -1,0 +1,51 @@
+################################################################
+# Globals
+################################################################
+globals:
+  # Rotary knob state
+
+  # Keep track of which direction the knob was turned
+  - id: global_knob_direction
+    type: int
+    initial_value: '0'
+
+  - id: global_knob_pressed
+    type: bool
+    initial_value: 'false'
+
+  - id: global_knob_press_handled
+    type: bool
+    initial_value: 'false'
+
+
+  # Game settings
+
+  # Game autoplay enabled (game plays itself if supported)
+  - id: global_game_autoplay
+    type: bool
+    initial_value: 'true'
+
+  # Game sound enabled
+  - id: global_game_sound
+    type: bool
+    initial_value: 'true'
+
+  # Game rumble enabled
+  - id: global_game_rumble
+    type: bool
+    initial_value: 'true'
+
+  # Game volume 0-100 (beeper)
+  - id: global_game_volume
+    type: int
+    initial_value: '2'
+
+  # Game snake speed (1-20)
+  - id: global_game_snake_speed
+    type: int
+    initial_value: '7'
+
+  # Walls enabled in snake game
+  - id: global_game_snake_walls
+    type: bool
+    initial_value: 'true'

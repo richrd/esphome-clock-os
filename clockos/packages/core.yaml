@@ -1,0 +1,68 @@
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+
+esphome:
+  name: esp32-c3-mini-2
+  friendly_name: ${clockos_device_friendly_name}
+  on_boot:
+    then:
+      # Show main clock page on boot
+      - display.page.show: page_main
+
+      # The knob position needs to be initialized on boot, otherwise the value is unpredictable
+      # It is set here to a mid-point value (max is 50)
+      - lambda: |-
+          id(knob).publish_state(25);
+
+      # Initialize wake up time number components from persisted globals
+      - number.set:
+          id: feature_alarm_time_hour
+          value: !lambda "return id(global_feature_alarm_hour);"
+      - number.set:
+          id: feature_alarm_time_minute
+          value: !lambda "return id(global_feature_alarm_minute);"
+
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret clockos_api_key
+
+ota:
+  - platform: esphome
+    password: !secret clockos_ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  id: wifi0
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: ${clockos_fallback_hotspot_name}
+    password: !secret clockos_fallback_hotspot_password
+
+
+captive_portal:
+
+
+
+# Enable logging
+logger:
+  level: INFO  # Disable Debug logging 
+  logs:
+    graph: ERROR
+
+
+
+# Log level selector
+select:
+  - platform: logger
+    name: "Log level"
+
+button:
+  - platform: restart
+    id: restart_button
+    name: "Restart"

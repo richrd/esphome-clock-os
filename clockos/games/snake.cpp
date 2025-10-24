@@ -125,6 +125,9 @@
         }
     }
 
+    int old_direction_x = direction_x;
+    int old_direction_y = direction_y;
+    
     if (frame == frames_per_update) {
         //ESP_LOGI("snake", "Move snake: knob_direction=%d", knob_direction);
         BodyPart head = snake_body.back();
@@ -171,6 +174,7 @@
 
         int new_x = head.x + direction_x;
         int new_y = head.y + direction_y;
+
         bool collided_with_wall = false;
         // Check for wall collisions
         if (new_x < 0 || new_x >= max_x || new_y < 0 || new_y >= max_y) {
@@ -193,17 +197,29 @@
             }
         }
 
+        
+
         if(!collided_with_wall) {
             // Check for collision with self
             bool collided = false;
             for (const auto& part : snake_body) {
                 if (part.x == new_x && part.y == new_y) {
-                    collided = true;
-                    break;
+                    if (direction_x != old_direction_x || direction_y != old_direction_y) {
+                        // Snake has turned into itself due to knob turn, ignore the turn
+                        new_x = head.x + old_direction_x;
+                        new_y = head.y + old_direction_y;
+                        break;
+                    } else {
+                        collided = true;
+                        break;
+                    }
                 }
             }
+
             if (collided) {
+                // Collided with self - game over
                 reset_game();
+                return;
             } else {
                 bool ate_pickup = false;
                 for (auto it = pickups.begin(); it != pickups.end(); ++it) {
@@ -222,6 +238,7 @@
                 snake_body.push_back({new_x, new_y});
             }
         }
+
         // Handle completed update
         frame = 0;
         id(global_knob_direction) = 0;

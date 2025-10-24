@@ -1,0 +1,133 @@
+################################################################
+# Hardware
+################################################################
+
+# Settings
+number:
+  - platform: template
+    id: screen_brightness
+    name: "Screen Brightness"
+    icon: "mdi:brightness-percent"
+    step: 10
+    min_value: 0
+    max_value: 100
+    optimistic: true
+    initial_value: 50
+    set_action:
+    - lambda: |-
+        id(clockos_display).set_contrast(x / 100.0);
+  - platform: template
+    id: buzzer_volume
+    name: "Volume"
+    icon: "mdi:speaker"
+    step: 5
+    min_value: 0
+    max_value: 100
+    optimistic: true
+    initial_value: 2
+    set_action:
+    - lambda: |-
+        id(rtttl_player).set_gain(x / 100.0);
+
+
+################################################################
+# Output / Beeper / Rumbble
+################################################################
+output:
+  - platform: ledc
+    pin: ${clockos_pin_beeper}
+    id: rttl_pwm_output
+
+rtttl:
+  output: rttl_pwm_output
+  id: rtttl_player
+  gain: 2%
+
+switch:
+  - platform: gpio
+    id: rumble_output
+    pin: ${clockos_pin_rumble_motor}
+    name: "Rumble Motor"
+
+
+################################################################
+# Output / Display
+################################################################
+i2c:
+  sda: ${clockos_pin_display_sda}
+  scl: ${clockos_pin_display_scl}
+  frequency: 800kHz
+
+
+################################################################
+# Input / Encoder
+################################################################
+sensor:
+  - platform: rotary_encoder
+    id: knob
+    name: "Knob"
+    internal: true
+    pin_a:
+      number: ${clockos_pin_encoder_a}
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    pin_b:
+      number: ${clockos_pin_encoder_b}
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    on_anticlockwise:
+      - display_menu.up: main_menu
+      - lambda: 'id(global_knob_direction) = -1;'
+    on_clockwise:
+      - display_menu.down: main_menu
+      - lambda: 'id(global_knob_direction) = 1;'
+    min_value: 0
+    max_value: 50
+
+################################################################
+# Input / Encoder button
+################################################################
+binary_sensor:
+  - platform: gpio
+    id: knob_button
+    name: "Knob Button"
+    internal: true
+    pin:
+      number: GPIO0
+      mode: INPUT_PULLUP
+      inverted: True
+    filters:
+    - delayed_on: 10ms
+    on_press:
+      # Handle knob button press for menu navigation
+      then:
+      - if:
+          condition:
+            # If the main menu is already active (i.e., we're navigating within it)
+            - display_menu.is_active: main_menu
+          then:
+            # Enter (or select the current item) in the main menu
+            - display_menu.enter: main_menu
+          else:
+            - display_menu.show: main_menu
+            # if:
+            #   condition:
+            #     # Check if the text input page is *NOT* active.
+            #     - not:
+            #         display.is_displaying_page: page_demo_text_input
+            #   then:
+            #     # Show the main menu (since it's not active and we're not on the text input page)
+            #     - display_menu.show: main_menu
+            #   else:
+            #     - lambda: 'id(global_knob_pressed) = true;'
+      # Stop alarm if it's playing
+      - if:
+          condition:
+            switch.is_on: switch_feature_alarm_active
+          then:
+            - switch.turn_off: switch_feature_alarm_active
+

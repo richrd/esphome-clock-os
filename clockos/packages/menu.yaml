@@ -1,0 +1,230 @@
+################################################################
+# Menu
+################################################################
+graphical_display_menu:
+  id: main_menu
+  display: clockos_display
+  active: false
+  on_redraw:
+    then:
+      component.update: clockos_display
+  font: font_sm
+  mode: rotary
+  menu_item_value: !lambda |-
+    // Customize menu value editing visuals
+    std::string label = " ";
+    if (it->is_item_selected && it->is_menu_editing) {
+      label.append(" - ");
+      label.append(it->item->get_value_text());
+      label.append(" + ");
+    } else {
+      label.append("[");
+      label.append(it->item->get_value_text());
+      label.append("]");
+    }
+    return label;
+  items:
+    - type: menu
+      text: ' Clock ⏵ '
+      items:
+      - type: back
+        text: ' ⏴ Back '
+      - type: command
+        text: ' Show clock '
+        on_value:
+          then:
+              - display_menu.hide: main_menu
+              - display.page.show: page_main
+      - type: command
+        text: !lambda |-
+          return std::string(" Alarm [") + (id(switch_wake_up_alarm).state ? "ON" : "OFF") + "]";
+        on_value:
+          then:
+            - switch.toggle: switch_wake_up_alarm
+      - type: number
+        text: ' Hour '
+        number: feature_alarm_time_hour
+      - type: number
+        text: ' Minute '
+        number: feature_alarm_time_minute
+    - type: menu
+      text: ' Games ⏵ '
+      items:
+        - type: back
+          text: ' ⏴ Back '
+        - type: menu
+          text: ' Breakout ⏵ '
+          items:
+            - type: back
+              text: ' ⏴ Back '
+            - type: command
+              text: ' Play '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_game_breakout
+            - type: command
+              text: !lambda |-
+                return std::string(" Autoplay [") + (id(global_game_autoplay) ? "ON" : "OFF") + "]";
+              on_value:
+                then:
+                  - if:
+                      condition:
+                        lambda: 'return id(global_game_autoplay);'
+                      then:
+                        - switch.turn_off: switch_game_autoplay
+                      else:
+                        - switch.turn_on: switch_game_autoplay
+        - type: menu
+          text: ' Snake ⏵ '
+          items:
+            - type: back
+              text: ' ⏴ Back '
+            - type: command
+              text: ' Play '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    # Reset knob direction when resuming so menu usage doesn't interfere with game
+                    - lambda: 'id(global_knob_direction) = 0;'
+                    - display.page.show: page_game_snake
+            - type: number
+              text: ' Speed '
+              number: snake_speed
+            - type: command
+              text: !lambda |-
+                return std::string(" Walls [") + (id(global_game_snake_walls) ? "ON" : "OFF") + "]";
+              on_value:
+                then:
+                  - if:
+                      condition:
+                        lambda: 'return id(global_game_snake_walls);'
+                      then:
+                        - switch.turn_off: switch_game_snake_walls
+                      else:
+                        - switch.turn_on: switch_game_snake_walls
+        - type: menu
+          text: ' Demos ⏵ '
+          items:
+            - type: back
+              text: ' ⏴ Back '
+            - type: command
+              text: ' Spin '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_demo_spin
+            - type: command
+              text: ' DVD '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_demo_dvd_screen_saver
+            - type: command
+              text: ' Tokyo Bunny '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_demo_tokyo_bunny
+            - type: command
+              text: ' Text input '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_demo_text_input
+    - type: menu
+      text: ' Sounds ⏵ '
+      items:
+        - type: back
+          text: ' ⏴ Back '
+        - type: command
+          text: ' Mario '
+          on_value:
+            then:
+                - rtttl.play: 'mario:d=4,o=5,b=100:16e6,16e6,32p,8e6,16c6,8e6,8g6,8p,8g,8p,8c6,16p,8g,16p,8e,16p,8a,8b,16a#,8a,16g.,16e6,16g6,8a6,16f6,8g6,8e6,16c6,16d6,8b,16p,8c6,16p,8g,16p,8e,16p,8a,8b,16a#,8a,16g.,16e6,16g6,8a6,16f6,8g6,8e6,16c6,16d6,8b,8p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16g#,16a,16c6,16p,16a,16c6,16d6,8p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16c7,16p,16c7,16c7,p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16g#,16a,16c6,16p,16a,16c6,16d6,8p,16d#6,8p,16d6,8p,16c6'
+        - type: command
+          text: ' Star Wars '
+          on_value:
+            then:
+                - rtttl.play: 'star_wars:d=16,o=5,b=100:4e,4e,4e,8c,p,g,4e,8c,p,g,4e,4p,4b,4b,4b,8c6,p,g,4d#,8c,p,g,4e,8p'
+
+        - type: command
+          text: ' Mission Impossible '
+          on_value:
+            then:
+                - rtttl.play: 'mission_imp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d'
+        - type: command
+          text: ' Barbie Girl '
+          on_value:
+            then:
+                - rtttl.play: 'Barbie Girl:d=8,o=6,b=125:g#,e,g#,c#6,4a,4p,f#,d#,f#,b,4g#,f#,e,4p,e,c#,4f#,4c#,4p,f#,e,4g#,4f#'
+    - type: menu
+      text: ' Settings ⏵ '
+      items:
+        - type: back
+          text: ' ⏴ Back '
+        - type: number
+          text: ' Brightness '
+          number: screen_brightness
+        - type: command
+          text: !lambda |-
+            return std::string(" Rumble [") + (id(global_game_rumble) ? "ON" : "OFF") + "]";
+          on_value:
+            then:
+              - if:
+                  condition:
+                    lambda: 'return id(global_game_rumble);'
+                  then:
+                    - switch.turn_off: switch_game_rumble
+                  else:
+                    - switch.turn_on: switch_game_rumble
+        - type: command
+          text: !lambda |-
+            return std::string(" Sound [") + (id(global_game_sound) ? "ON" : "OFF") + "]";
+          on_value:
+            then:
+              - if:
+                  condition:
+                    lambda: 'return id(global_game_sound);'
+                  then:
+                    - switch.turn_off: switch_game_sound
+                  else:
+                    - switch.turn_on: switch_game_sound
+        - type: number
+          text: ' Volume '
+          number: buzzer_volume
+        - type: menu
+          text: ' System ⏵ '
+          items:
+            - type: back
+              text: ' ⏴ Back '
+            - type: command
+              text: ' Status '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_system
+            - type: command
+              text: !lambda |-
+                return std::string(" Wifi [") + (!id(wifi0).is_disabled() ? "ON" : "OFF") + "]";
+              on_value:
+                then:
+                  - if:
+                      condition:
+                        lambda: 'return !id(wifi0).is_disabled();'
+                      then:
+                        - wifi.disable
+                      else:
+                        - wifi.enable
+            - type: command
+              text: " Restart "
+              on_value:
+                then:
+                  - logger.log: "Restarting ESP32..."
+                  - delay: 100ms
+                  - button.press: restart_button
+    - type: command
+      text: ' Close '
+      on_value:
+        then:
+          - display_menu.hide: main_menu

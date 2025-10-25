@@ -123,8 +123,8 @@ display:
     invert: false
     contrast: 50%
     auto_clear_enabled: true
-    update_interval: 33ms
-    # update_interval: 16ms
+    # update_interval: 33ms
+    update_interval: 10ms
 
     pages:
 
@@ -142,6 +142,9 @@ display:
 
       - id: page_demo_tokyo_bunny
         lambda: !include "clockos/games/demos/tokyo_bunny.cpp"
+
+      - id: page_demo_bunnywiggle
+        lambda: !include "clockos/games/demos/bunnywiggle.cpp"
 
       - id: page_demo_text_input
         lambda: !include "clockos/games/demos/text_input.cpp"
@@ -167,3 +170,11 @@ image:
       id: image_bunnygirl_03
     - file: clockos/images/bunnygirl_04.png
       id: image_bunnygirl_04
+
+animation:
+  - file: "clockos/images/bunnywiggle_01.gif"
+    id: animation_bunnywiggle_01
+    type: BINARY
+  - file: "clockos/images/bunnywiggle_02.gif"
+    id: animation_bunnywiggle_02
+    type: BINARY

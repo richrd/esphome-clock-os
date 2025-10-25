@@ -127,6 +127,12 @@ graphical_display_menu:
                     - display_menu.hide: main_menu
                     - display.page.show: page_demo_tokyo_bunny
             - type: command
+              text: ' Bunnywiggle '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_demo_bunnywiggle
+            - type: command
               text: ' Text input '
               on_value:
                 then:

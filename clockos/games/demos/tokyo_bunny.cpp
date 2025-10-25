@@ -9,7 +9,6 @@
     static int image_frame = 1;
     static int frames_per_update = 10;
 
-
     // Track elapsed time to detect when app has been paused
     static uint32_t last_ms = 0;
     if (last_ms == 0) {
@@ -38,7 +37,6 @@
             image_frame = 1;
         }
     }
-
 
     it.fill(COLOR_OFF);
     

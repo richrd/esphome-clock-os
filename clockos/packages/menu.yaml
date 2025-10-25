@@ -159,6 +159,19 @@ graphical_display_menu:
             then:
                 - rtttl.play: 'Barbie Girl:d=8,o=6,b=125:g#,e,g#,c#6,4a,4p,f#,d#,f#,b,4g#,f#,e,4p,e,c#,4f#,4c#,4p,f#,e,4g#,4f#'
     - type: menu
+      text: ' Control ⏵ '
+      items:
+        - type: back
+          text: ' ⏴ Back '
+        - type: command
+          text: ' Turn off all lights '
+          on_value:
+            then:
+              - homeassistant.service:
+                  service: light.turn_off
+                  data:
+                    entity_id: light.all_lights
+    - type: menu
       text: ' Settings ⏵ '
       items:
         - type: back

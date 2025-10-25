@@ -111,14 +111,15 @@
         }
     }
 
-    int BRICK_TYPE_NORMAL = 0;
-    int BRICK_TYPE_SHIELD = 1;
-    int BRICK_TYPE_EXTRA_BALL = 2;
-    int BRICK_TYPE_WIDER_PADDLE = 3;
-    int BRICK_TYPE_EXTRA_LIFE = 4;
-    int BRICK_TYPE_WONKY_BRICKS = 5;
-    int BRICK_TYPE_SHOOTER = 6;
-    int BRICK_TYPE_STATIC = 7;
+    const int BRICK_TYPE_NORMAL = 0;
+    const int BRICK_TYPE_SHIELD = 1;
+    const int BRICK_TYPE_EXTRA_BALL = 2;
+    const int BRICK_TYPE_WIDER_PADDLE = 3;
+    const int BRICK_TYPE_EXTRA_LIFE = 4;
+    const int BRICK_TYPE_WONKY_BRICKS = 5;
+    const int BRICK_TYPE_SHOOTER = 6;
+    const int BRICK_TYPE_STATIC = 7;
+    const int BRICK_TYPE_POWERUP_SHUFFLE = 8;
     // TODO:
     // int BRICK_TYPE_UP_ONLY = 4;
     // int BRICK_TYPE_INVERT_SCREEN = 5; // (flip screen for x amount of time or until the next level)
@@ -368,10 +369,17 @@
                     BRICK_TYPE_EXTRA_LIFE,
                     BRICK_TYPE_WONKY_BRICKS,
                     BRICK_TYPE_SHOOTER,
+                    BRICK_TYPE_POWERUP_SHUFFLE,
                     // BRICK_TYPE_STATIC,
                 };
                 int rtype = rtype_choices[esp_random() % (sizeof(rtype_choices) / sizeof(rtype_choices[0]))];
                 bricks[idx].type = rtype;
+
+                if (rtype == BRICK_TYPE_POWERUP_SHUFFLE)
+                {
+                    bricks[idx].hp = 2; // Static bricks only have 1 HP
+                }
+
                 assigned++;
             }
         }
@@ -500,6 +508,39 @@
             if (shooter_level > 2)
             {
                 shooter_level = 2;
+            }
+        }
+
+        if (bricks[id].type == BRICK_TYPE_POWERUP_SHUFFLE)
+        {
+            int rtype_choices[] = {
+                BRICK_TYPE_SHIELD,
+                BRICK_TYPE_EXTRA_BALL,
+                BRICK_TYPE_WIDER_PADDLE,
+                BRICK_TYPE_EXTRA_LIFE,
+                BRICK_TYPE_WONKY_BRICKS,
+                BRICK_TYPE_SHOOTER,
+                BRICK_TYPE_POWERUP_SHUFFLE,
+            };
+
+            // Randomize all existing powerup brick types
+            for (int i = 0; i < brick_count; i++) {
+                if (bricks[i].hp > 0) {
+                    switch (bricks[i].type) {
+                        case BRICK_TYPE_SHIELD:
+                        case BRICK_TYPE_EXTRA_BALL:
+                        case BRICK_TYPE_WIDER_PADDLE:
+                        case BRICK_TYPE_EXTRA_LIFE:
+                        case BRICK_TYPE_WONKY_BRICKS:
+                        case BRICK_TYPE_SHOOTER:
+                        case BRICK_TYPE_POWERUP_SHUFFLE:
+                            // Assign a new random powerup type (not shuffle)
+                            bricks[i].type = rtype_choices[esp_random() % (sizeof(rtype_choices) / sizeof(rtype_choices[0]))];
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
         }
     };
@@ -949,6 +990,22 @@
                 it.draw_pixel_at(center_x, line_y - 2, COLOR_ON);
                 it.draw_pixel_at(center_x, line_y - 4, COLOR_ON);
                 it.draw_pixel_at(center_x, line_y - 6, COLOR_ON);
+                continue;
+            }
+
+            if (brick.type == BRICK_TYPE_POWERUP_SHUFFLE)
+            {
+                draw_special_brick_corners(bricks[i].x, bricks[i].y);
+                // ?
+                int bx = bricks[i].x;
+                int by = bricks[i].y;
+                it.line(bx + 6, by, bx + 8, by);
+                it.draw_pixel_at(bx + 5, by +1, COLOR_ON);
+                it.line(bx + 9, by+1, bx + 9, by+2);
+                it.draw_pixel_at(bx + 8, by + 3, COLOR_ON);
+                it.draw_pixel_at(bx + 7, by + 4, COLOR_ON);
+                it.draw_pixel_at(bx + 7, by + 6, COLOR_ON);
+                
                 continue;
             }
 

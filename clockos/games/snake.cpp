@@ -185,6 +185,7 @@
                     break;
                 }
             }
+
             if (!found) {
                 target_pickup.x = -1;
                 target_pickup.y = -1;
@@ -195,6 +196,7 @@
                 target_pickup.x = pickups[0].x;
                 target_pickup.y = pickups[0].y;
             }
+            
             
             // Autoplay: turn towards pickup if it's left or right of the head
             if (target_pickup.x != -1) {
@@ -215,6 +217,46 @@
                         direction_y = 0;
                     }
                 }
+            }
+
+            // Autoplay: avoid running into the snake itself
+            int test_x = head.x + direction_x;
+            int test_y = head.y + direction_y;
+            bool will_collide = false;
+            for (const auto& part : snake_body) {
+                if (part.x == test_x && part.y == test_y) {
+                    will_collide = true;
+                    break;
+                }
+            }
+            if (will_collide) {
+                // Try alternate directions: up, down, left, right (not reversing)
+                struct Dir { int dx, dy; };
+                std::vector<Dir> alternatives;
+                if (direction_x != 0) {
+                    alternatives = { {0, 1}, {0, -1} };
+                } else {
+                    alternatives = { {1, 0}, {-1, 0} };
+                }
+                bool found_safe = false;
+                for (const auto& alt : alternatives) {
+                    int nx = head.x + alt.dx;
+                    int ny = head.y + alt.dy;
+                    bool safe = true;
+                    for (const auto& part : snake_body) {
+                        if (part.x == nx && part.y == ny) {
+                            safe = false;
+                            break;
+                        }
+                    }
+                    if (safe) {
+                        direction_x = alt.dx;
+                        direction_y = alt.dy;
+                        found_safe = true;
+                        break;
+                    }
+                }
+                // If no safe direction found, keep current direction (will reset on collision)
             }
         }
 

@@ -157,9 +157,6 @@ display:
       - id: page_demo_text_input
         lambda: !include "clockos/games/demos/text_input.cpp"
 
-      - id: page_game_breakout
-        lambda: !include "clockos/games/breakout.cpp"
-
       - id: page_game_snake
         lambda: !include "clockos/games/snake.cpp"
 
@@ -187,7 +184,6 @@ animation:
     type: BINARY
 
 
-
 packages:
   # Core
   - !include clockos/packages/globals.yaml
@@ -200,3 +196,6 @@ packages:
   # Features
   - !include clockos/packages/features/alarm.yaml
   - !include clockos/packages/features/floorplan.yaml
+
+  # Games
+  - !include clockos/packages/games/breakout/breakout.yaml

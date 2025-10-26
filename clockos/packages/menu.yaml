@@ -49,32 +49,11 @@ graphical_display_menu:
         number: feature_alarm_time_minute
     - type: menu
       text: ' Games ⏵ '
+      id: menu_submenu_games
       items:
         - type: back
           text: ' ⏴ Back '
-        - type: menu
-          text: ' Breakout ⏵ '
-          items:
-            - type: back
-              text: ' ⏴ Back '
-            - type: command
-              text: ' Play '
-              on_value:
-                then:
-                    - display_menu.hide: main_menu
-                    - display.page.show: page_game_breakout
-            - type: command
-              text: !lambda |-
-                return std::string(" Autoplay [") + (id(global_game_autoplay) ? "ON" : "OFF") + "]";
-              on_value:
-                then:
-                  - if:
-                      condition:
-                        lambda: 'return id(global_game_autoplay);'
-                      then:
-                        - switch.turn_off: switch_game_autoplay
-                      else:
-                        - switch.turn_on: switch_game_autoplay
+
         - type: menu
           text: ' Snake ⏵ '
           items:

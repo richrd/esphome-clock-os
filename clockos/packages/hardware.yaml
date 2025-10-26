@@ -113,21 +113,21 @@ binary_sensor:
             # Enter (or select the current item) in the main menu
             - display_menu.enter: main_menu
           else:
-            - display_menu.show: main_menu
-            # if:
-            #   condition:
-            #     # Check if the text input page is *NOT* active.
-            #     - not:
-            #         display.is_displaying_page: page_demo_text_input
-            #   then:
-            #     # Show the main menu (since it's not active and we're not on the text input page)
-            #     - display_menu.show: main_menu
-            #   else:
-            #     - lambda: 'id(global_knob_pressed) = true;'
+            if:
+              condition:
+                # Check that knob button isn't handled already
+                - lambda: 'return !id(global_knob_press_handled);'
+              then:
+                - display_menu.show: main_menu
+              else:
+                - lambda: 'id(global_knob_pressed) = true;'
       # Stop alarm if it's playing
       - if:
           condition:
             switch.is_on: switch_feature_alarm_active
           then:
             - switch.turn_off: switch_feature_alarm_active
-
+    on_double_click:
+      - lambda: 'id(global_knob_pressed) = false; id(global_knob_press_handled) = false;'
+      - display_menu.hide: main_menu
+      - display.page.show: page_main

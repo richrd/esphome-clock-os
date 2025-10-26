@@ -377,7 +377,7 @@
 
                 if (rtype == BRICK_TYPE_POWERUP_SHUFFLE)
                 {
-                    bricks[idx].hp = 2; // Static bricks only have 1 HP
+                    bricks[idx].hp = 2;
                 }
 
                 assigned++;
@@ -541,6 +541,11 @@
                             break;
                     }
                 }
+            }
+
+            if (bricks[id].type == BRICK_TYPE_POWERUP_SHUFFLE) {
+                // If the current brick is still shuffle, reset its HP so it can be triggered again
+                bricks[id].hp = 2;
             }
         }
     };

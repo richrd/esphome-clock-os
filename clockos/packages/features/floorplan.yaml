@@ -1,0 +1,27 @@
+
+display:
+  - id: !extend clockos_display
+    pages:
+      - id: page_app_floorplan
+        lambda: !include "floorplan.cpp"
+
+graphical_display_menu:
+  id: main_menu
+  items:
+    - id: !extend menu_submenu_control
+      items:
+        - type: command
+          text: ' Floorplan '
+          on_value:
+            then:
+                - display_menu.hide: main_menu
+                - lambda: 'id(global_knob_press_handled) = true;'
+                - display.page.show: page_app_floorplan
+
+# Image assets
+image:
+  defaults:
+    type: BINARY
+  images:
+    - file: clockos/images/floorplan.png
+      id: image_floorplan

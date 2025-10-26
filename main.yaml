@@ -15,20 +15,26 @@ substitutions:
   clockos_pin_encoder_b: GPIO1
 
 
-packages:
-  # Core
-  - !include clockos/packages/globals.yaml
-  - !include clockos/packages/core.yaml
-  - !include clockos/packages/hardware.yaml
-  - !include clockos/packages/graphics.yaml
-  - !include clockos/packages/sensors.yaml
-  - !include clockos/packages/menu.yaml
 
-  # Features
-  - !include clockos/packages/features/alarm.yaml
+script:
+  - id: script_toggle_ha_entity
+    parameters:
+      entity_id: string
+    then:
+      - logger.log: "Trying to toggle HA entity"
+      - logger.log:
+          format: "Entity id %s"
+          args:
+            - entity_id.c_str()
+      - homeassistant.service:
+          service: homeassistant.toggle
+          data:
+            entity_id: !lambda 'return entity_id.c_str();'
+  - id: script_back_to_menu
+    then:
+    - lambda: 'id(global_knob_press_handled) = false;'
+    - display_menu.show: main_menu
 
-  # Features
-  # - !include clockos/games/snake/snake.yaml
 
 switch:
   - platform: template
@@ -179,3 +185,18 @@ animation:
   - file: "clockos/images/bunnywiggle_02.gif"
     id: animation_bunnywiggle_02
     type: BINARY
+
+
+
+packages:
+  # Core
+  - !include clockos/packages/globals.yaml
+  - !include clockos/packages/core.yaml
+  - !include clockos/packages/hardware.yaml
+  - !include clockos/packages/graphics.yaml
+  - !include clockos/packages/sensors.yaml
+  - !include clockos/packages/menu.yaml
+
+  # Features
+  - !include clockos/packages/features/alarm.yaml
+  - !include clockos/packages/features/floorplan.yaml

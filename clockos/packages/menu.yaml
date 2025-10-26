@@ -165,6 +165,7 @@ graphical_display_menu:
             then:
                 - rtttl.play: 'Barbie Girl:d=8,o=6,b=125:g#,e,g#,c#6,4a,4p,f#,d#,f#,b,4g#,f#,e,4p,e,c#,4f#,4c#,4p,f#,e,4g#,4f#'
     - type: menu
+      id: menu_submenu_control
       text: ' Control ⏵ '
       items:
         - type: back

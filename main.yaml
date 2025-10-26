@@ -2,6 +2,9 @@ substitutions:
   # General configuration
   clockos_device_friendly_name: "ClockOS"
   clockos_fallback_hotspot_name: "ClockOS Fallback Hotspot"
+  clockos_display_platform: ssd1306_i2c
+  clockos_display_model: "SSD1306 128x64"
+
 
   # GPIO pins
   clockos_pin_beeper: GPIO05
@@ -116,15 +119,14 @@ graph:
 # Display / Pages
 ################################################################
 display:
-  - platform: ssd1306_i2c
+  - platform: ${clockos_display_platform}
     id: clockos_display
-    model: "SSD1306 128x64"
+    model: ${clockos_display_model}
     address: 0x3C
     invert: false
     contrast: 50%
     auto_clear_enabled: true
-    # update_interval: 33ms
-    update_interval: 10ms
+    update_interval: 16ms
 
     pages:
 
@@ -160,7 +162,6 @@ display:
 image:
   defaults:
     type: BINARY
-    # resize: 200x162
   images:
     - file: clockos/images/bunnygirl_01.png
       id: image_bunnygirl_01

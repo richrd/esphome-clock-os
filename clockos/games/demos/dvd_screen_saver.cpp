@@ -57,4 +57,3 @@
 
     it.fill(COLOR_OFF);
     draw_dvd_logo();
-    // it.filled_rectangle(x, y, size, size);

@@ -49,7 +49,3 @@
     } else if (image_frame == 4) {
         it.image(0, 0, id(image_bunnygirl_04));
     }
-
-    // if (frame >= max_frame) {
-    //     // Reset app after max frames
-    // }

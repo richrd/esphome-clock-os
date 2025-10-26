@@ -1,0 +1,28 @@
+
+display:
+  - id: !extend clockos_display
+    pages:
+      - id: page_demo_bunny_wiggle
+        lambda: !include "bunny_wiggle.cpp"
+
+graphical_display_menu:
+  id: main_menu
+  items:
+    - id: !extend menu_submenu_games
+      items:
+        - id: !extend menu_submenu_demos
+          items:
+            - type: command
+              text: ' Bunny Wiggle '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_demo_bunny_wiggle
+
+animation:
+  - file: "clockos/packages/demos/bunny_wiggle/bunny_wiggle_01.gif"
+    id: animation_bunnywiggle_01
+    type: BINARY
+  - file: "clockos/packages/demos/bunny_wiggle/bunny_wiggle_02.gif"
+    id: animation_bunnywiggle_02
+    type: BINARY

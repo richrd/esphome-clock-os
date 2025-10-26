@@ -54,40 +54,11 @@ graphical_display_menu:
         - type: back
           text: ' ⏴ Back '
         - type: menu
+          id: menu_submenu_demos
           text: ' Demos ⏵ '
           items:
             - type: back
               text: ' ⏴ Back '
-            - type: command
-              text: ' Spin '
-              on_value:
-                then:
-                    - display_menu.hide: main_menu
-                    - display.page.show: page_demo_spin
-            - type: command
-              text: ' DVD '
-              on_value:
-                then:
-                    - display_menu.hide: main_menu
-                    - display.page.show: page_demo_dvd_screen_saver
-            - type: command
-              text: ' Tokyo Bunny '
-              on_value:
-                then:
-                    - display_menu.hide: main_menu
-                    - display.page.show: page_demo_tokyo_bunny
-            - type: command
-              text: ' Bunnywiggle '
-              on_value:
-                then:
-                    - display_menu.hide: main_menu
-                    - display.page.show: page_demo_bunnywiggle
-            - type: command
-              text: ' Text input '
-              on_value:
-                then:
-                    - display_menu.hide: main_menu
-                    - display.page.show: page_demo_text_input
     - type: menu
       text: ' Sounds ⏵ '
       items:

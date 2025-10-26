@@ -1,0 +1,34 @@
+
+display:
+  - id: !extend clockos_display
+    pages:
+      - id: page_demo_tokyo_bunny
+        lambda: !include "tokyo_bunny.cpp"
+
+graphical_display_menu:
+  id: main_menu
+  items:
+    - id: !extend menu_submenu_games
+      items:
+        - id: !extend menu_submenu_demos
+          items:
+            - type: command
+              text: ' Tokyo Bunny '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_demo_tokyo_bunny
+
+# Image assets
+image:
+  defaults:
+    type: BINARY
+  images:
+    - file: clockos/packages/demos/tokyo_bunny/bunnygirl_01.png
+      id: image_bunnygirl_01
+    - file: clockos/packages/demos/tokyo_bunny/bunnygirl_02.png
+      id: image_bunnygirl_02
+    - file: clockos/packages/demos/tokyo_bunny/bunnygirl_03.png
+      id: image_bunnygirl_03
+    - file: clockos/packages/demos/tokyo_bunny/bunnygirl_04.png
+      id: image_bunnygirl_04

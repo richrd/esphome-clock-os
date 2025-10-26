@@ -1,0 +1,20 @@
+
+display:
+  - id: !extend clockos_display
+    pages:
+      - id: page_demo_text_input
+        lambda: !include "text_input.cpp"
+
+graphical_display_menu:
+  id: main_menu
+  items:
+    - id: !extend menu_submenu_games
+      items:
+        - id: !extend menu_submenu_demos
+          items:
+            - type: command
+              text: ' Text Input (WIP) '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_demo_text_input

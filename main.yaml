@@ -142,43 +142,17 @@ display:
       - id: page_system
         lambda: !include "clockos/screens/system.cpp"
 
-      - id: page_demo_spin
-        lambda: !include "clockos/games/demos/spin.cpp"
+      # - id: page_demo_spin
+      #   lambda: !include "clockos/games/demos/spin.cpp"
 
-      - id: page_demo_dvd_screen_saver
-        lambda: !include "clockos/games/demos/dvd_screen_saver.cpp"
+      # - id: page_demo_dvd_screen_saver
+      #   lambda: !include "clockos/games/demos/dvd_screen_saver.cpp"
 
-      - id: page_demo_tokyo_bunny
-        lambda: !include "clockos/games/demos/tokyo_bunny.cpp"
+      # - id: page_demo_bunnywiggle
+      #   lambda: !include "clockos/games/demos/bunnywiggle.cpp"
 
-      - id: page_demo_bunnywiggle
-        lambda: !include "clockos/games/demos/bunnywiggle.cpp"
-
-      - id: page_demo_text_input
-        lambda: !include "clockos/games/demos/text_input.cpp"
-
-
-# Image assets
-image:
-  defaults:
-    type: BINARY
-  images:
-    - file: clockos/images/bunnygirl_01.png
-      id: image_bunnygirl_01
-    - file: clockos/images/bunnygirl_02.png
-      id: image_bunnygirl_02
-    - file: clockos/images/bunnygirl_03.png
-      id: image_bunnygirl_03
-    - file: clockos/images/bunnygirl_04.png
-      id: image_bunnygirl_04
-
-animation:
-  - file: "clockos/images/bunnywiggle_01.gif"
-    id: animation_bunnywiggle_01
-    type: BINARY
-  - file: "clockos/images/bunnywiggle_02.gif"
-    id: animation_bunnywiggle_02
-    type: BINARY
+      # - id: page_demo_text_input
+      #   lambda: !include "clockos/games/demos/text_input.cpp"
 
 
 packages:
@@ -197,3 +171,10 @@ packages:
   # Games
   - !include clockos/packages/games/breakout/breakout.yaml
   - !include clockos/packages/games/snake/snake.yaml
+
+  # Demos
+  - !include clockos/packages/demos/dvd_screen_saver/dvd_screen_saver.yaml
+  - !include clockos/packages/demos/spin/spin.yaml
+  - !include clockos/packages/demos/text_input/text_input.yaml
+  - !include clockos/packages/demos/tokyo_bunny/tokyo_bunny.yaml
+  - !include clockos/packages/demos/bunny_wiggle/bunny_wiggle.yaml

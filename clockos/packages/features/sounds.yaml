@@ -4,24 +4,108 @@ graphical_display_menu:
   items:
     - id: !extend menu_submenu_sounds
       items:
+
         - type: command
           text: ' Mario '
           on_value:
             then:
-                - rtttl.play: 'mario:d=4,o=5,b=100:16e6,16e6,32p,8e6,16c6,8e6,8g6,8p,8g,8p,8c6,16p,8g,16p,8e,16p,8a,8b,16a#,8a,16g.,16e6,16g6,8a6,16f6,8g6,8e6,16c6,16d6,8b,16p,8c6,16p,8g,16p,8e,16p,8a,8b,16a#,8a,16g.,16e6,16g6,8a6,16f6,8g6,8e6,16c6,16d6,8b,8p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16g#,16a,16c6,16p,16a,16c6,16d6,8p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16c7,16p,16c7,16c7,p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16g#,16a,16c6,16p,16a,16c6,16d6,8p,16d#6,8p,16d6,8p,16c6'
+              - rtttl.stop
+              - rtttl.play: 'mario:d=4,o=5,b=100:16e6,16e6,32p,8e6,16c6,8e6,8g6,8p,8g,8p,8c6,16p,8g,16p,8e,16p,8a,8b,16a#,8a,16g.,16e6,16g6,8a6,16f6,8g6,8e6,16c6,16d6,8b,16p,8c6,16p,8g,16p,8e,16p,8a,8b,16a#,8a,16g.,16e6,16g6,8a6,16f6,8g6,8e6,16c6,16d6,8b,8p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16g#,16a,16c6,16p,16a,16c6,16d6,8p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16c7,16p,16c7,16c7,p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16g#,16a,16c6,16p,16a,16c6,16d6,8p,16d#6,8p,16d6,8p,16c6'
+
         - type: command
           text: ' Star Wars '
           on_value:
             then:
-                - rtttl.play: 'star_wars:d=16,o=5,b=100:4e,4e,4e,8c,p,g,4e,8c,p,g,4e,4p,4b,4b,4b,8c6,p,g,4d#,8c,p,g,4e,8p'
+              - rtttl.stop
+              - rtttl.play: 'star_wars:d=16,o=5,b=100:4e,4e,4e,8c,p,g,4e,8c,p,g,4e,4p,4b,4b,4b,8c6,p,g,4d#,8c,p,g,4e,8p'
 
         - type: command
           text: ' Mission Impossible '
           on_value:
             then:
-                - rtttl.play: 'mission_imp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d'
+              - rtttl.stop
+              - rtttl.play: 'mission_imp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d'
+
         - type: command
           text: ' Barbie Girl '
           on_value:
             then:
-                - rtttl.play: 'Barbie Girl:d=8,o=6,b=125:g#,e,g#,c#6,4a,4p,f#,d#,f#,b,4g#,f#,e,4p,e,c#,4f#,4c#,4p,f#,e,4g#,4f#'
+              - rtttl.stop
+              - rtttl.play: 'Barbie Girl:d=8,o=6,b=125:g#,e,g#,c#6,4a,4p,f#,d#,f#,b,4g#,f#,e,4p,e,c#,4f#,4c#,4p,f#,e,4g#,4f#'
+
+        - type: command
+          text: ' Black Bear '
+          on_value:
+            then:
+              - rtttl.stop
+              - rtttl.play: 'Black Bear:d=4,o=5,b=180:d#,d#,8g,16d#,8a#,16g,d#,d#,8g,16d#,8a#,16g,f,8c,16b4,c,8f,16d#,8d,16d#,8c,16d,8a#4,16c,8d,16a#4,d#,d#,8g,16d#,8a#,16g,d#,d#,8g,16d#,8a#,16g,f,f,f,8g,16f,d#,g,2d#'
+
+        - type: command
+          text: ' Batman '
+          on_value:
+            then:
+              - rtttl.stop
+              - rtttl.play: 'Batman:d=8,o=5,b=180:d,d,c#,c#,c,c,c#,c#,d,d,c#,c#,c,c,c#,c#,d,d#,c,c#,c,c,c#,c#,f,p,4f'
+
+        - type: command
+          text: ' Bethoven '
+          on_value:
+            then:
+              - rtttl.stop
+              - rtttl.play: 'Bethoven:d=4,o=5,b=160:c,e,c,g,c,c6,8b,8a,8g,8a,8g,8f,8e,8f,8e,8d,c,e,g,e,c6,g'
+
+        - type: command
+          text: ' Digimon '
+          on_value:
+            then:
+              - rtttl.stop
+              - rtttl.play: 'Digimon:d=8,o=5,b=112:c,g,f#,p,16c,16c,g,f#,g,16c,16c,g,f#,g,a#,a#,4p,c,g,f#,p,16c,16c,g,f#,g,16c,16c,g,f#,d#,4c'
+
+        - type: command
+          text: ' Flintstones '
+          on_value:
+            then:
+              - rtttl.stop
+              - rtttl.play: 'Flintstones:d=8,o=5,b=200:g#,4c#,p,4c#6,a#,4g#,4c#,p,4g#,f#,f,f,f#,g#,4c#,4d#,2f,2p,4g#,4c#,p,4c#6,a#,4g#,4c#,p,4g#,f#,f,f,f#,g#,4c#,4d#,2c#'
+
+        - type: command
+          text: ' Flute '
+          on_value:
+            then:
+              - rtttl.stop
+              - rtttl.play: 'Flute:d=8,o=5,b=160:16a,16g,16a,16a#,c6,c6,c6,c6,c6,c6,c6,c6,4f,4p,32f,16e,16f,16g,a,a,a,a,a,a,a,a,4d,4p,16d,16c,16d,16e,f,f,f,c,g,g,g,c,a,f,a,c6,f6,c6,d6,a#,c6,f,a,c6,f6,c6,d6,a#,4c6,4p,4f,f,4a4,4p,4e'
+
+        - type: command
+          text: ' Funky Town '
+          on_value:
+            then:
+              - rtttl.stop
+              - rtttl.play: 'Funky Town:d=8,o=4,b=125:c6,c6,a#5,c6,p,g5,p,g5,c6,f6,e6,c6,2p,c6,c6,a#5,c6,p,g5,p,g5,c6,f6,e6,c6'
+
+        - type: command
+          text: ' Halloween '
+          on_value:
+            then:
+              - rtttl.stop
+              - rtttl.play: 'Halloween:d=8,o=5,b=180:d6,g,g,d6,g,g,d6,g,d#6,g,d6,g,g,d6,g,g,d6,g,d#6,g,c#6,f#,f#,c#6,f#,f#,c#6,f#,d6,f#,c#6,f#,f#,c#6,f#,f#,c#6,f#,d6,f#'
+
+        - type: command
+          text: ' James Bond '
+          on_value:
+            then:
+              - rtttl.stop
+              - rtttl.play: 'James Bond:d=4,o=5,b=80:32p,16c#6,32d#6,32d#6,16d#6,8d#6,16c#6,16c#6,16c#6,16c#6,32e6,32e6,16e6,8e6,16d#6,16d#6,16d#6,16c#6,32d#6,32d#6,16d#6,8d#6,16c#6,16c#6,16c#6,16c#6,32e6,32e6,16e6,8e6,16d#6,16d6,16c#6,16c#7,c7,16g#6,16f#6,g#6'
+
+        - type: command
+          text: ' Rugrats '
+          on_value:
+            then:
+              - rtttl.stop
+              - rtttl.play: 'Rugrats:d=8,o=7,b=100:c,d,e,f,g,a,p,a,g,f,e,d,c,p,c,d,e,d,c,b6,p,b6,c,d,c,b6,a6,p,c,d,e,f,g,a,p,a,g,f,e,d,c,p,c,d,e,d,c,b6'
+
+        - type: command
+          text: ' The Simpsons '
+          on_value:
+            then:
+              - rtttl.stop
+              - rtttl.play: 'The Simpsons:d=4,o=5,b=160:2c6,e6,f#6,8a6,g6,e6,c6,8a,8f#,8f#,8f#,2g,8p,8p,8f#,8f#,8f#,8g,a#,8c6,8c6,8c6,c6'

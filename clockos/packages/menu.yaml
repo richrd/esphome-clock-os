@@ -53,35 +53,6 @@ graphical_display_menu:
       items:
         - type: back
           text: ' ⏴ Back '
-
-        - type: menu
-          text: ' Snake ⏵ '
-          items:
-            - type: back
-              text: ' ⏴ Back '
-            - type: command
-              text: ' Play '
-              on_value:
-                then:
-                    - display_menu.hide: main_menu
-                    # Reset knob direction when resuming so menu usage doesn't interfere with game
-                    - lambda: 'id(global_knob_direction) = 0;'
-                    - display.page.show: page_game_snake
-            - type: number
-              text: ' Speed '
-              number: snake_speed
-            - type: command
-              text: !lambda |-
-                return std::string(" Walls [") + (id(global_game_snake_walls) ? "ON" : "OFF") + "]";
-              on_value:
-                then:
-                  - if:
-                      condition:
-                        lambda: 'return id(global_game_snake_walls);'
-                      then:
-                        - switch.turn_off: switch_game_snake_walls
-                      else:
-                        - switch.turn_on: switch_game_snake_walls
         - type: menu
           text: ' Demos ⏵ '
           items:

@@ -126,6 +126,7 @@ packages:
   # Features
   - !include clockos/packages/features/alarm.yaml
   - !include clockos/packages/features/floorplan.yaml
+  - !include clockos/packages/features/sounds.yaml
 
   # Games
   - !include clockos/packages/games/breakout/breakout.yaml

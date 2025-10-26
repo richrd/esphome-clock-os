@@ -1,3 +1,25 @@
+globals:
+  # Snake speed (1-20)
+  - id: global_game_snake_speed
+    type: int
+    initial_value: '7'
+
+  # Walls enabled
+  - id: global_game_snake_walls
+    type: bool
+    initial_value: 'true'
+
+switch:
+  - platform: template
+    name: "Snake walls"
+    id: switch_game_snake_walls
+    restore_mode: RESTORE_DEFAULT_ON
+    lambda: |-
+      return id(global_game_snake_walls);
+    turn_on_action:
+      - lambda: 'id(global_game_snake_walls) = true;'
+    turn_off_action:
+      - lambda: 'id(global_game_snake_walls) = false;'
 
 display:
   - id: !extend clockos_display
@@ -38,3 +60,16 @@ graphical_display_menu:
                         - switch.turn_off: switch_game_snake_walls
                       else:
                         - switch.turn_on: switch_game_snake_walls
+
+number:
+  - platform: template
+    id: snake_speed
+    name: "Speed"
+    step: 1
+    min_value: 1
+    max_value: 20
+    optimistic: true
+    initial_value: 7
+    set_action:
+    - lambda: |-
+        id(global_game_snake_speed) = (int)x;

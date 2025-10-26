@@ -5,7 +5,6 @@ substitutions:
   clockos_display_platform: ssd1306_i2c
   clockos_display_model: "SSD1306 128x64"
 
-
   # GPIO pins
   clockos_pin_beeper: GPIO05
   clockos_pin_rumble_motor: GPIO10
@@ -67,16 +66,6 @@ switch:
       - lambda: 'id(global_game_rumble) = true;'
     turn_off_action:
       - lambda: 'id(global_game_rumble) = false;'
-  - platform: template
-    name: "Snake walls"
-    id: switch_game_snake_walls
-    restore_mode: RESTORE_DEFAULT_ON
-    lambda: |-
-      return id(global_game_snake_walls);
-    turn_on_action:
-      - lambda: 'id(global_game_snake_walls) = true;'
-    turn_off_action:
-      - lambda: 'id(global_game_snake_walls) = false;'
   - platform: homeassistant
     id: switch_wake_up_alarm
     entity_id: input_boolean.wake_up_lights
@@ -92,27 +81,10 @@ sensor:
     entity_id: weather.forecast_home
     attribute: humidity
 
-number:
-  - platform: template
-    id: snake_speed
-    name: "Speed"
-    step: 1
-    min_value: 1
-    max_value: 20
-    optimistic: true
-    initial_value: 7
-    set_action:
-    - lambda: |-
-        id(global_game_snake_speed) = (int)x;
-
-
 graph:
   # Show bare-minimum auto-ranged graph
   - id: wifi_graph
-    #duration: 150s
     duration: 60s
-    # width: 124
-    # height: 28
     width: 124
     height: 16
     traces:
@@ -141,19 +113,6 @@ display:
 
       - id: page_system
         lambda: !include "clockos/screens/system.cpp"
-
-      # - id: page_demo_spin
-      #   lambda: !include "clockos/games/demos/spin.cpp"
-
-      # - id: page_demo_dvd_screen_saver
-      #   lambda: !include "clockos/games/demos/dvd_screen_saver.cpp"
-
-      # - id: page_demo_bunnywiggle
-      #   lambda: !include "clockos/games/demos/bunnywiggle.cpp"
-
-      # - id: page_demo_text_input
-      #   lambda: !include "clockos/games/demos/text_input.cpp"
-
 
 packages:
   # Core

@@ -29,6 +29,7 @@ esphome:
 api:
   encryption:
     key: !secret clockos_api_key
+  reboot_timeout: 0s # Disable API connection-loss reboot
 
 ota:
   - platform: esphome
@@ -38,6 +39,7 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   id: wifi0
+  reboot_timeout: 0s # Disable WiFi connection-loss reboot
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:

@@ -33,7 +33,7 @@ sensor:
   # Internal systems sensors
   - platform: wifi_signal
     internal: true
-    update_interval: 0.5s
+    update_interval: 2s
     id: wifi_rssi
 
   - platform: uptime

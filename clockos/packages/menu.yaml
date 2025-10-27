@@ -26,6 +26,7 @@ graphical_display_menu:
   items:
     - type: menu
       text: ' Clock ⏵ '
+      id: menu_submenu_clock
       items:
       - type: back
         text: ' ⏴ Back '
@@ -35,18 +36,6 @@ graphical_display_menu:
           then:
               - display_menu.hide: main_menu
               - display.page.show: page_main
-      - type: command
-        text: !lambda |-
-          return std::string(" Alarm [") + (id(switch_wake_up_alarm).state ? "ON" : "OFF") + "]";
-        on_value:
-          then:
-            - switch.toggle: switch_wake_up_alarm
-      - type: number
-        text: ' Hour '
-        number: feature_alarm_time_hour
-      - type: number
-        text: ' Minute '
-        number: feature_alarm_time_minute
     - type: menu
       text: ' Games ⏵ '
       id: menu_submenu_games

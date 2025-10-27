@@ -93,7 +93,7 @@ sensor:
 ################################################################
 binary_sensor:
   - platform: gpio
-    id: knob_button
+    id: clockos_knob_button
     name: "Knob Button"
     internal: true
     pin:
@@ -121,12 +121,6 @@ binary_sensor:
                 - display_menu.show: main_menu
               else:
                 - lambda: 'id(global_knob_pressed) = true;'
-      # Stop alarm if it's playing
-      - if:
-          condition:
-            switch.is_on: switch_feature_alarm_active
-          then:
-            - switch.turn_off: switch_feature_alarm_active
     on_double_click:
       - lambda: 'id(global_knob_pressed) = false; id(global_knob_press_handled) = false;'
       - display_menu.hide: main_menu

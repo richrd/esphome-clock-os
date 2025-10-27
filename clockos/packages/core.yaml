@@ -16,13 +16,6 @@ esphome:
       - lambda: |-
           id(knob).publish_state(25);
 
-      # Initialize wake up time number components from persisted globals
-      - number.set:
-          id: feature_alarm_time_hour
-          value: !lambda "return id(global_feature_alarm_hour);"
-      - number.set:
-          id: feature_alarm_time_minute
-          value: !lambda "return id(global_feature_alarm_minute);"
 
 
 # Enable Home Assistant API
@@ -68,3 +61,11 @@ button:
   - platform: restart
     id: restart_button
     name: "Restart"
+
+time:
+  - platform: sntp
+    id: clockos_main_time
+    servers:
+     - 0.pool.ntp.org
+     - 1.pool.ntp.org
+     - 2.pool.ntp.org

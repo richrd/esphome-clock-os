@@ -66,9 +66,6 @@ switch:
       - lambda: 'id(global_game_rumble) = true;'
     turn_off_action:
       - lambda: 'id(global_game_rumble) = false;'
-  - platform: homeassistant
-    id: switch_wake_up_alarm
-    entity_id: input_boolean.wake_up_lights
 
 
 sensor:

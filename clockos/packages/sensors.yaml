@@ -1,11 +1,6 @@
 ################################################################
 # Sensors
 ################################################################
-time:
-  # Home Assistant Time
-  - platform: homeassistant
-    id: homeassistant_time
-
 text_sensor:
   # Internal Sensors
   - platform: version

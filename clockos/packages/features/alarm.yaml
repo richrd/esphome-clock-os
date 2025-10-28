@@ -1,23 +1,21 @@
+# Persist alarm state and time in globals
 globals:
-  # Persist alarm state and time
   - id: global_feature_alarm_enabled
     type: bool
     initial_value: 'false'
 
-  # Alarm time (hour)
   - id: global_feature_alarm_hour
     type: int
     initial_value: '9'
     restore_value: yes
 
-  # Alarm time (minute)
   - id: global_feature_alarm_minute
     type: int
     initial_value: '30'
     restore_value: yes
 
 
-# On boot initialization
+# Set initial values for alarm time number components on boot
 esphome:
   on_boot:
     then:
@@ -30,10 +28,9 @@ esphome:
           value: !lambda "return id(global_feature_alarm_minute);"
 
 
+# Handle triggering the alarm at the set time
 time:
-  # Home Assistant Time
-  - platform: homeassistant
-    # # Handle dynamic wake-up alarm
+  - id: !extend clockos_main_time
     on_time:
       - seconds: 0
         then:
@@ -51,18 +48,25 @@ time:
                         int current_minute = id(clockos_main_time).now().minute;
 
                         // Get the desired alarm hour and minute from global variables
-                        // Assuming they are defined as int components:
                         int alarm_hour = id(global_feature_alarm_hour);
                         int alarm_minute = id(global_feature_alarm_minute);
 
                         // Return true if current time matches the alarm time
                         return (current_hour == alarm_hour) && (current_minute == alarm_minute);
                     then:
-                      # The dynamic time has been reached and the alarm is enabled!
-                      # - script.execute: wake_up_alarm_sound
+                      - display_menu.hide: main_menu
+                      - display.page.show: page_app_alarm
                       - switch.turn_on: switch_feature_alarm_active
 
 
+display:
+  - id: !extend clockos_display
+    pages:
+      - id: page_app_alarm
+        lambda: !include "alarm.cpp"
+
+
+# Provide switches for alarm features
 switch:
   # If the alarm is enabled
   - platform: template
@@ -88,6 +92,7 @@ switch:
       - rtttl.stop
 
 
+# Add alarm menu items
 graphical_display_menu:
   id: main_menu
   items:
@@ -117,6 +122,7 @@ graphical_display_menu:
 script:
   - id: script_feature_alarm_sound
     then:
+      # Play the most annoying alarm sound possible (beep beep beep beep x4, wait ... repeat)
       - rtttl.play: 'Untitled:d=32,o=6,b=100:e,p,e,p,e,p,e,p,p,p,p,p,e,p,e,p,e,p,e,p,p,p,p,p,e,p,e,p,e,p,e,p,p,p,p,p,e,p,e,p,e,p,e'
       - delay: 5s
       - script.execute: script_feature_alarm_sound_repeat
@@ -126,8 +132,8 @@ script:
       - script.execute: script_feature_alarm_sound
 
 
+# Wake up time hours/minutes
 number:
-  # Wake up time hours/minutes
   - platform: template
     id: feature_alarm_time_hour
     name: "Wake up hour"
@@ -144,7 +150,7 @@ number:
     name: "Wake up minute"
     min_value: 0
     max_value: 59
-    step: 5
+    step: 1
     optimistic: true
     on_value:
       then:
@@ -152,12 +158,12 @@ number:
             id(global_feature_alarm_minute) = (int)x;
 
 
+# Silence alarm when knob button is pressed
 binary_sensor:
   - platform: gpio
     id: !extend clockos_knob_button
     on_press:
       then:
-      # Stop alarm if it's playing
       - if:
           condition:
             switch.is_on: switch_feature_alarm_active

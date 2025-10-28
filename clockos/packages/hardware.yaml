@@ -97,7 +97,7 @@ binary_sensor:
     name: "Knob Button"
     internal: true
     pin:
-      number: GPIO0
+      number: ${clockos_pin_encoder_button}
       mode: INPUT_PULLUP
       inverted: True
     filters:

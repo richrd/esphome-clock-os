@@ -50,7 +50,7 @@
       it.graph(2, 48, id(wifi_graph));
 
       // Show current time
-      it.printf(0, -10, id(font_xxl), "%02d:%02d", id(homeassistant_time).now().hour, id(homeassistant_time).now().minute);
+      it.printf(0, -10, id(font_xxl), "%02d:%02d", id(clockos_main_time).now().hour, id(clockos_main_time).now().minute);
 
       // Show raw sunrise time
       int small_text_y = 31;

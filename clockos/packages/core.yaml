@@ -65,10 +65,7 @@ button:
     id: restart_button
     name: "Restart"
 
+# Time
 time:
   - platform: sntp
     id: clockos_main_time
-    servers:
-     - 0.pool.ntp.org
-     - 1.pool.ntp.org
-     - 2.pool.ntp.org

@@ -1,0 +1,42 @@
+
+display:
+  - id: !extend clockos_display
+    pages:
+      - id: page_feature_system
+        lambda: !include "system.cpp"
+
+graphical_display_menu:
+  id: main_menu
+  items:
+    - id: !extend menu_submenu_settings
+      items:
+        - type: menu
+          text: ' System ⏵ '
+          items:
+            - type: back
+              text: ' ⏴ Back '
+            - type: command
+              text: ' Status '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_feature_system
+            - type: command
+              text: !lambda |-
+                return std::string(" Wifi [") + (!id(wifi0).is_disabled() ? "ON" : "OFF") + "]";
+              on_value:
+                then:
+                  - if:
+                      condition:
+                        lambda: 'return !id(wifi0).is_disabled();'
+                      then:
+                        - wifi.disable
+                      else:
+                        - wifi.enable
+            - type: command
+              text: " Restart "
+              on_value:
+                then:
+                  - logger.log: "Restarting ESP32..."
+                  - delay: 100ms
+                  - button.press: restart_button

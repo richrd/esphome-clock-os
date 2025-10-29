@@ -36,6 +36,12 @@ graphical_display_menu:
           then:
               - display_menu.hide: main_menu
               - display.page.show: page_main
+      - type: command
+        text: ' Show analog clock '
+        on_value:
+          then:
+              - display_menu.hide: main_menu
+              - display.page.show: page_analog_clock
     - type: menu
       text: ' Games ⏵ '
       id: menu_submenu_games
@@ -70,6 +76,7 @@ graphical_display_menu:
                     entity_id: light.all_lights
     - type: menu
       text: ' Settings ⏵ '
+      id: menu_submenu_settings
       items:
         - type: back
           text: ' ⏴ Back '
@@ -103,36 +110,6 @@ graphical_display_menu:
         - type: number
           text: ' Volume '
           number: buzzer_volume
-        - type: menu
-          text: ' System ⏵ '
-          items:
-            - type: back
-              text: ' ⏴ Back '
-            - type: command
-              text: ' Status '
-              on_value:
-                then:
-                    - display_menu.hide: main_menu
-                    - display.page.show: page_system
-            - type: command
-              text: !lambda |-
-                return std::string(" Wifi [") + (!id(wifi0).is_disabled() ? "ON" : "OFF") + "]";
-              on_value:
-                then:
-                  - if:
-                      condition:
-                        lambda: 'return !id(wifi0).is_disabled();'
-                      then:
-                        - wifi.disable
-                      else:
-                        - wifi.enable
-            - type: command
-              text: " Restart "
-              on_value:
-                then:
-                  - logger.log: "Restarting ESP32..."
-                  - delay: 100ms
-                  - button.press: restart_button
     - type: command
       text: ' Close '
       on_value:

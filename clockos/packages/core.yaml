@@ -4,7 +4,7 @@ esp32:
     type: esp-idf
 
 esphome:
-  name: esp32-c3-mini-2
+  name: ${clockos_device_name}
   friendly_name: ${clockos_device_friendly_name}
   on_boot:
     then:
@@ -26,7 +26,7 @@ api:
 
 ota:
   - platform: esphome
-    password: !secret clockos_ota_password
+    password: ${clockos_ota_password}
 
 wifi:
   networks:
@@ -42,9 +42,9 @@ wifi:
     ssid: ${clockos_fallback_hotspot_name}
     password: !secret clockos_fallback_hotspot_password
 
-
+# Fallback WiFi
 captive_portal:
-
+  id: clockos_captive_portal
 
 
 # Enable logging
@@ -54,12 +54,12 @@ logger:
     graph: ERROR
 
 
-
 # Log level selector
 select:
   - platform: logger
     name: "Log level"
 
+# Restart button
 button:
   - platform: restart
     id: restart_button
@@ -69,3 +69,16 @@ button:
 time:
   - platform: sntp
     id: clockos_main_time
+
+# Misc settings, probably will move into a package later
+switch:
+  - platform: template
+    name: "Autoplay"
+    id: switch_game_autoplay
+    restore_mode: RESTORE_DEFAULT_ON
+    lambda: |-
+      return id(global_game_autoplay);
+    turn_on_action:
+      - lambda: 'id(global_game_autoplay) = true;'
+    turn_off_action:
+      - lambda: 'id(global_game_autoplay) = false;'

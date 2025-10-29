@@ -1,7 +1,9 @@
 substitutions:
   # General configuration
+  clockos_device_name: esp32-c3-mini-2
   clockos_device_friendly_name: "ClockOS"
   clockos_fallback_hotspot_name: "ClockOS Fallback Hotspot"
+  clockos_ota_password: !secret clockos_ota_password
   clockos_display_platform: ssd1306_i2c
   clockos_display_model: "SSD1306 128x64"
 
@@ -12,60 +14,7 @@ substitutions:
   clockos_pin_display_scl: GPIO04
   clockos_pin_encoder_a: GPIO02
   clockos_pin_encoder_b: GPIO1
-
-
-
-script:
-  - id: script_toggle_ha_entity
-    parameters:
-      entity_id: string
-    then:
-      - logger.log: "Trying to toggle HA entity"
-      - logger.log:
-          format: "Entity id %s"
-          args:
-            - entity_id.c_str()
-      - homeassistant.service:
-          service: homeassistant.toggle
-          data:
-            entity_id: !lambda 'return entity_id.c_str();'
-  - id: script_back_to_menu
-    then:
-    - lambda: 'id(global_knob_press_handled) = false;'
-    - display_menu.show: main_menu
-
-
-switch:
-  - platform: template
-    name: "Autoplay"
-    id: switch_game_autoplay
-    restore_mode: RESTORE_DEFAULT_ON
-    lambda: |-
-      return id(global_game_autoplay);
-    turn_on_action:
-      - lambda: 'id(global_game_autoplay) = true;'
-    turn_off_action:
-      - lambda: 'id(global_game_autoplay) = false;'
-  - platform: template
-    name: "Sound"
-    id: switch_game_sound
-    restore_mode: RESTORE_DEFAULT_ON
-    lambda: |-
-      return id(global_game_sound);
-    turn_on_action:
-      - lambda: 'id(global_game_sound) = true;'
-    turn_off_action:
-      - lambda: 'id(global_game_sound) = false;'
-  - platform: template
-    name: "Rumble"
-    id: switch_game_rumble
-    restore_mode: RESTORE_DEFAULT_ON
-    lambda: |-
-      return id(global_game_rumble);
-    turn_on_action:
-      - lambda: 'id(global_game_rumble) = true;'
-    turn_off_action:
-      - lambda: 'id(global_game_rumble) = false;'
+  clockos_pin_encoder_button: GPIO0
 
 
 sensor:
@@ -89,32 +38,11 @@ graph:
         line_thickness: 2
         continuous: True
 
-
-################################################################
-# Display / Pages
-################################################################
-display:
-  - platform: ${clockos_display_platform}
-    id: clockos_display
-    model: ${clockos_display_model}
-    address: 0x3C
-    invert: false
-    contrast: 50%
-    auto_clear_enabled: true
-    update_interval: 16ms
-
-    pages:
-
-      - id: page_main
-        lambda: !include "clockos/screens/clock.cpp"
-
-      - id: page_system
-        lambda: !include "clockos/screens/system.cpp"
-
 packages:
   # Core
   - !include clockos/packages/globals.yaml
   - !include clockos/packages/core.yaml
+  - !include clockos/packages/scripts.yaml
   - !include clockos/packages/hardware.yaml
   - !include clockos/packages/graphics.yaml
   - !include clockos/packages/sensors.yaml
@@ -124,6 +52,7 @@ packages:
   - !include clockos/packages/features/alarm.yaml
   - !include clockos/packages/features/floorplan.yaml
   - !include clockos/packages/features/sounds.yaml
+  - !include clockos/packages/features/system.yaml
 
   # Games
   - !include clockos/packages/games/breakout/breakout.yaml

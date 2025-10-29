@@ -48,7 +48,26 @@ switch:
     id: rumble_output
     pin: ${clockos_pin_rumble_motor}
     name: "Rumble Motor"
-
+  - platform: template
+    name: "Sound"
+    id: switch_game_sound
+    restore_mode: RESTORE_DEFAULT_ON
+    lambda: |-
+      return id(global_game_sound);
+    turn_on_action:
+      - lambda: 'id(global_game_sound) = true;'
+    turn_off_action:
+      - lambda: 'id(global_game_sound) = false;'
+  - platform: template
+    name: "Rumble"
+    id: switch_game_rumble
+    restore_mode: RESTORE_DEFAULT_ON
+    lambda: |-
+      return id(global_game_rumble);
+    turn_on_action:
+      - lambda: 'id(global_game_rumble) = true;'
+    turn_off_action:
+      - lambda: 'id(global_game_rumble) = false;'
 
 ################################################################
 # Output / Display
@@ -57,6 +76,25 @@ i2c:
   sda: ${clockos_pin_display_sda}
   scl: ${clockos_pin_display_scl}
   frequency: 800kHz
+
+display:
+  - platform: ${clockos_display_platform}
+    id: clockos_display
+    model: ${clockos_display_model}
+    address: 0x3C
+    invert: false
+    contrast: 50%
+    auto_clear_enabled: true
+    update_interval: 16ms
+
+    pages:
+
+      - id: page_main
+        lambda: !include "../screens/clock.cpp"
+
+      - id: page_analog_clock
+        lambda: !include "../screens/analog_clock.cpp"
+
 
 
 ################################################################
@@ -87,6 +125,7 @@ sensor:
       - lambda: 'id(global_knob_direction) = 1;'
     min_value: 0
     max_value: 50
+
 
 ################################################################
 # Input / Encoder button

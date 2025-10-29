@@ -1,0 +1,24 @@
+################################################################
+# Scripts used and provided by ClockOS
+################################################################
+script:
+  # Toggle a Home Assistant entity
+  - id: script_toggle_ha_entity
+    parameters:
+      entity_id: string
+    then:
+      - logger.log: "Trying to toggle HA entity"
+      - logger.log:
+          format: "Entity id %s"
+          args:
+            - entity_id.c_str()
+      - homeassistant.service:
+          service: homeassistant.toggle
+          data:
+            entity_id: !lambda 'return entity_id.c_str();'
+
+  # Navigate back to the main menu
+  - id: script_back_to_menu
+    then:
+    - lambda: 'id(global_knob_press_handled) = false;'
+    - display_menu.show: main_menu

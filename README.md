@@ -2,12 +2,31 @@
 
 ESPHome ClockOS is my work in progress project for an ESPHome based desk clock with an OLED screen and rotary encoder.
 
+## Hardware
+- ESP32
+- Rotary encoder
+- Beeper
+- Vibration motor
+- Screen (128x64)
+
+## Features
+- Clock and alarm
+- Games (Breakout and Snake)
+- Demos (examples of what can be done with graphics)
+- Floorplan
+- Settings
+
 
 ## Menu system
 The default screen is the Clock, and clicking the encoder opens the main menu, below is the menu hierarchy which outlines the current features of the project:
 
     [ Main Menu ]
-    ├── Clock
+    ├── Clock ⏵
+    │   ├── Show clock
+    │   ├── Show analog clock
+    │   ├── Alarm [OFF]
+    │   ├── Hour [9.0]
+    │   ├── Minute [30.0]
     ├── Games ⏵
     │   ├── Breakout ⏵
     │   │   ├── Play
@@ -18,21 +37,27 @@ The default screen is the Clock, and clicking the encoder opens the main menu, b
     │   │   └── Walls [ON]
     │   └── Demos ⏵
     │       ├── Spin (spinning ball animation)
-    │       └── DVD (Bouncing DVD logo screensaver)
+    │       ├── DVD (Bouncing DVD logo screensaver)
+    │       └── ...
     ├── Sounds ⏵
     │   ├── Mario
     │   ├── Star Wars
     │   ├── Mission Impossible
-    │   └── Barbie Girl
+    │   ├── Barbie Girl
+    │   └── ...
+    ├── Control ⏵
+    │   ├── Turn off all lights
+    │   └── Floorplan
     ├── Settings ⏵
     │   ├── Brightness [50.0]
     │   ├── Rumbole [ON]
     │   ├── Sound [ON]
     │   ├── Volume [2.0]
-    │   ├── System ⏵
-    │   │   └── [Shows system information screen]
-    │   └── Restart
-    │       └── [Restarts the ESP32]
+    │   └── System ⏵
+    │       ├── Status
+    │       ├── WiFi [ON]
+    │       ├── Restart
+    │       └── Factory reset
     └── Close
 
 
@@ -55,7 +80,7 @@ This is my take on Breakout / Arkanoid. It's played by moving the paddle with th
 - Autoplay: the game can play itself
 
 
-[Code](games/breakout.cpp)
+[Code](clockos/packages/games/breakout/breakout.cpp)
 
 ### Snake
 Simple Snake clone, features:
@@ -64,5 +89,11 @@ Simple Snake clone, features:
 - Ability to change game speed
 - Ability to enable/disable walls (snake warps to the other side when crossing a wall)
 
-[Code](games/snake.cpp)
+[Code](clockos/packages/games/snake/snake.cpp)
 
+# TODO:
+- [ ] Add option to shows the clock after being idle for a while
+- [ ] Add rumble to alarm
+- [ ] Make alarm tone selectable
+- [ ] Add more clock faces and allow selecting the default
+- [ ] Pausing a game when rumble is active causes the rumble to stay on, can probably fix by adding a timer which cuts it off after e.g. 2 seconds, or when leaving an app

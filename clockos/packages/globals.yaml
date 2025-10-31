@@ -21,9 +21,9 @@ globals:
   # Game settings
 
   # Game autoplay enabled (game plays itself if supported)
-  - id: global_game_autoplay
+  - id: clockos_global_game_autoplay
     type: bool
-    initial_value: 'true'
+    initial_value: 'false'
 
   # Game sound enabled
   - id: global_game_sound

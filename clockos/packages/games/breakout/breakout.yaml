@@ -21,15 +21,3 @@ graphical_display_menu:
                 then:
                     - display_menu.hide: main_menu
                     - display.page.show: page_game_breakout
-            - type: command
-              text: !lambda |-
-                return std::string(" Autoplay [") + (id(global_game_autoplay) ? "ON" : "OFF") + "]";
-              on_value:
-                then:
-                  - if:
-                      condition:
-                        lambda: 'return id(global_game_autoplay);'
-                      then:
-                        - switch.turn_off: switch_game_autoplay
-                      else:
-                        - switch.turn_on: switch_game_autoplay

@@ -48,6 +48,18 @@ graphical_display_menu:
       items:
         - type: back
           text: ' ⏴ Back '
+        - type: command
+          text: !lambda |-
+            return std::string(" Autoplay [") + (id(clockos_global_game_autoplay) ? "ON" : "OFF") + "]";
+          on_value:
+            then:
+              - if:
+                  condition:
+                    lambda: 'return id(clockos_global_game_autoplay);'
+                  then:
+                    - switch.turn_off: clockos_switch_game_autoplay
+                  else:
+                    - switch.turn_on: clockos_switch_game_autoplay
         - type: menu
           id: menu_submenu_demos
           text: ' Demos ⏵ '

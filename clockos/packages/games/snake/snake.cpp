@@ -132,9 +132,7 @@
     
     BodyPart head = snake_body.back();
     if (frame == frames_per_update) {
-        if (!global_game_autoplay) {
-            //ESP_LOGI("snake", "Move snake: knob_direction=%d", knob_direction);
-            
+        if (!clockos_global_game_autoplay) {
             if (knob_direction == 1) {
                 // Knob turned clockwise
                 if (direction_x != 0) {

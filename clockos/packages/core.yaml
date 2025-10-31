@@ -74,11 +74,11 @@ time:
 switch:
   - platform: template
     name: "Autoplay"
-    id: switch_game_autoplay
+    id: clockos_switch_game_autoplay
     restore_mode: RESTORE_DEFAULT_ON
     lambda: |-
-      return id(global_game_autoplay);
+      return id(clockos_global_game_autoplay);
     turn_on_action:
-      - lambda: 'id(global_game_autoplay) = true;'
+      - lambda: 'id(clockos_global_game_autoplay) = true;'
     turn_off_action:
-      - lambda: 'id(global_game_autoplay) = false;'
+      - lambda: 'id(clockos_global_game_autoplay) = false;'

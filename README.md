@@ -8,14 +8,14 @@ ESPHome ClockOS is my work in progress project for an ESPHome based desk clock w
 - ESP32 (I'm using C3 but any ESP32 should work)
 - Rotary encoder
 - Beeper
-- Vibration motobgr
+- Vibration motor
 - Screen (128x64)
 
 ## Features
 - Clock and alarm
 - Games (Breakout and Snake)
 - Demos (examples of what can be done with graphics)
-- Floorplan
+- Floorplan (for controlling entities in the house)
 - Settings
 
 

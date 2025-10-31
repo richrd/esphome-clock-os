@@ -2,11 +2,13 @@
 
 ESPHome ClockOS is my work in progress project for an ESPHome based desk clock with an OLED screen and rotary encoder.
 
+![Clocks](assets/clocks.jpg)
+
 ## Hardware
-- ESP32
+- ESP32 (I'm using C3 but any ESP32 should work)
 - Rotary encoder
 - Beeper
-- Vibration motor
+- Vibration motobgr
 - Screen (128x64)
 
 ## Features

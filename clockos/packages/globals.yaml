@@ -5,15 +5,23 @@ globals:
   # Rotary knob state
 
   # Keep track of which direction the knob was turned
-  - id: global_knob_direction
+  - id: clockos_global_knob_direction
     type: int
     initial_value: '0'
 
-  - id: global_knob_pressed
+  - id: clockos_global_knob_pressed
     type: bool
     initial_value: 'false'
 
-  - id: global_knob_press_handled
+  - id: clockos_global_knob_press_handled
+    type: bool
+    initial_value: 'false'
+
+  # Optional button states
+  - id: clockos_global_button_a_pressed
+    type: bool
+    initial_value: 'false'
+  - id: clockos_global_button_b_pressed
     type: bool
     initial_value: 'false'
 
@@ -39,3 +47,18 @@ globals:
   - id: global_game_volume
     type: int
     initial_value: '2'
+
+
+  # Display timeout 
+
+  # Display activity tracking
+  - id: clockos_last_activity_timestamp
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+  # How long to keep the display on in minutes
+  - id: clockos_global_display_timeout
+    type: int
+    initial_value: '0'
+    restore_value: yes

@@ -1,7 +1,9 @@
 esp32:
-  board: esp32-c3-devkitm-1
+  board: ${clockos_board}
+  # Tested on: esp32-c3-devkitm-1, esp32doit-devkit-v1
   framework:
-    type: esp-idf
+    type: ${clockos_framework_type}
+
 
 esphome:
   name: ${clockos_device_name}
@@ -14,8 +16,15 @@ esphome:
       # The knob position needs to be initialized on boot, otherwise the value is unpredictable
       # It is set here to a mid-point value (max is 50)
       - lambda: |-
-          id(knob).publish_state(25);
+          id(clockos_knob).publish_state(25);
 
+      # Initialize display timeout
+      - number.set:
+          id: clockos_number_display_timeout
+          value: !lambda "return id(clockos_global_display_timeout) / 60;"
+
+      # Start display activity check loop
+      - script.execute: script_display_activity_check_loop
 
 
 # Enable Home Assistant API
@@ -24,16 +33,20 @@ api:
     key: !secret clockos_api_key
   reboot_timeout: 0s # Disable API connection-loss reboot
 
+
+# Enable Over-the-Air updates
 ota:
   - platform: esphome
     password: ${clockos_ota_password}
 
+
+# Enable WiFi
 wifi:
-  # networks:
-  #   - ssid: !secret wifi_ssid
-  #     password: !secret wifi_password
-  #   - ssid: !secret wifi_fallback_ssid
-  #     password: !secret wifi_fallback_password
+  networks:
+    - ssid: !secret wifi_ssid
+      password: !secret wifi_password
+    - ssid: !secret wifi_fallback_ssid
+      password: !secret wifi_fallback_password
   id: wifi0
   reboot_timeout: 0s # Disable WiFi connection-loss reboot
 
@@ -42,7 +55,8 @@ wifi:
     ssid: ${clockos_fallback_hotspot_name}
     password: !secret clockos_fallback_hotspot_password
 
-# Fallback WiFi
+
+# Fallback WiFi portal
 captive_portal:
   id: clockos_captive_portal
 
@@ -59,16 +73,89 @@ select:
   - platform: logger
     name: "Log level"
 
+
 # Restart button
 button:
   - platform: restart
-    id: restart_button
+    id: clockos_button_restart
     name: "Restart"
 
-# Time
+
+# Time sources
 time:
   - platform: sntp
-    id: clockos_main_time
+    id: clockos_time_sntp
+    on_time:
+      - seconds: 0
+        then:
+          - script.execute: script_check_display_activity
+  - platform: homeassistant
+    id: clockos_time_ha
+    on_time:
+      - seconds: 0
+        then:
+          - script.execute: script_check_display_activity
+
+# Core scripts
+script:
+  # Workaround to check the display activity periodically, even when no time update events occur (if time can't be synced at all)
+  # TODO: This doesn't seem to work in all circumstances
+  - id: script_display_activity_check_loop
+    mode: restart
+    then:
+      - lambda: ESP_LOGI("core", "Checking display activity");
+      - script.execute: script_check_display_activity
+      - delay: 59s
+      - script.execute: script_display_activity_check_loop_retrigger
+      
+  - id: script_display_activity_check_loop_retrigger
+    mode: restart
+    then:
+      - lambda: ESP_LOGI("core", "Retriggering activity check");
+      - delay: 1s
+      - script.execute: script_display_activity_check_loop
+
+  - id: script_check_display_activity
+    then:
+      - lambda: |-
+          ESP_LOGI("core", "Running script: script_check_display_activity");
+          // ESP_LOGI("core", "Running script: script_check_display_activity");
+          // Check if the display activity timestamp is older than the timeout setting
+          if (
+            id(clockos_global_display_timeout) > 0
+            && id(clockos_current_timestamp).state - id(clockos_last_activity_timestamp)
+               > id(clockos_global_display_timeout)
+          ) {
+            // Turn off the display after 60 seconds of inactivity
+            id(clockos_display).turn_off();
+          }
+  - id: script_update_last_activity
+    then:
+      - lambda: |-
+          id(clockos_last_activity_timestamp) = id(clockos_current_timestamp).state;
+          id(clockos_display).turn_on();
+
+
+sensor:
+  - platform: template
+    name: "Current timestamp"
+    id: clockos_current_timestamp
+    unit_of_measurement: "s"
+    icon: "mdi:clock-time-three"
+    update_interval: 10s
+    lambda: |-
+      auto sntp = id(clockos_time_sntp).now();
+      if (sntp.is_valid()) {
+        return sntp.timestamp;
+      }
+
+      auto ha = id(clockos_time_ha).now();
+      if (ha.is_valid()) {
+        return ha.timestamp;
+      }
+
+      return NAN;
+
 
 # Misc settings, probably will move into a package later
 switch:

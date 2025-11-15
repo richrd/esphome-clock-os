@@ -28,8 +28,18 @@
     }
 
     // Get current time
-    int hour = id(clockos_main_time).now().hour % 12;
-    int minute = id(clockos_main_time).now().minute;
+    int hour = id(clockos_time_sntp).now().hour % 12;
+    int minute = id(clockos_time_sntp).now().minute;
+
+    float current_timestamp = id(clockos_current_timestamp).state;
+    // Check if the timestamp is valid (not NAN)
+    if (!isnan(current_timestamp)) {
+      // 2. Convert the timestamp (float) back to a native ESPTime object
+      // The method takes an 'epoch_second' (a 32-bit integer).
+      auto current_time_object = ESPTime::from_epoch_local((uint32_t)current_timestamp);
+      hour = current_time_object.hour;
+      minute = current_time_object.minute;
+    }
 
     // Calculate angles for hands
     float minute_angle = (minute / 60.0f) * 2 * M_PI - M_PI / 2;

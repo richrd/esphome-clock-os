@@ -1,0 +1,21 @@
+
+display:
+  - id: !extend clockos_display
+    pages:
+      - id: page_demo_pxl_paint
+        lambda: !include "pxl_paint.cpp"
+
+graphical_display_menu:
+  id: main_menu
+  items:
+    - id: !extend menu_submenu_games
+      items:
+        - id: !extend menu_submenu_demos
+          items:
+            - type: command
+              text: ' Pixel paint '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - lambda: 'id(clockos_global_knob_press_handled) = true;'
+                    - display.page.show: page_demo_pxl_paint

@@ -30,34 +30,16 @@ esphome:
 
 # Handle triggering the alarm at the set time
 time:
-  - id: !extend clockos_main_time
+  - id: !extend clockos_time_sntp
     on_time:
       - seconds: 0
         then:
-          - if:
-              # Condition 1: Check if the alarm switch is on
-              condition:
-                switch.is_on: switch_feature_alarm_enabled
-              then:
-                - if:
-                    # Condition 2: Check if the current time matches the dynamic alarm time
-                    condition:
-                      lambda: |-
-                        // Get current hour and minute from the time component
-                        int current_hour = id(clockos_main_time).now().hour;
-                        int current_minute = id(clockos_main_time).now().minute;
-
-                        // Get the desired alarm hour and minute from global variables
-                        int alarm_hour = id(global_feature_alarm_hour);
-                        int alarm_minute = id(global_feature_alarm_minute);
-
-                        // Return true if current time matches the alarm time
-                        return (current_hour == alarm_hour) && (current_minute == alarm_minute);
-                    then:
-                      - display_menu.hide: main_menu
-                      - display.page.show: page_app_alarm
-                      - switch.turn_on: switch_feature_alarm_active
-
+          - script.execute: script_feature_alarm_check
+  - id: !extend clockos_time_ha
+    on_time:
+      - seconds: 0
+        then:
+          - script.execute: script_feature_alarm_check
 
 display:
   - id: !extend clockos_display
@@ -98,38 +80,91 @@ graphical_display_menu:
   items:
     - id: !extend menu_submenu_clock
       items:
-        - type: command
-          text: !lambda |-
-            return std::string(" Alarm [") + (id(global_feature_alarm_enabled) ? "ON" : "OFF") + "]";
-          on_value:
-            then:
-              - if:
-                  condition:
-                    lambda: 'return id(global_feature_alarm_enabled);'
-                  then:
-                    - switch.turn_off: switch_feature_alarm_enabled
-                  else:
-                    - switch.turn_on: switch_feature_alarm_enabled
-        - type: number
-          text: ' Hour '
-          number: feature_alarm_time_hour
-        - type: number
-          text: ' Minute '
-          number: feature_alarm_time_minute
+        - type: menu
+          text: ' Alarm ⏵ '
+          id: menu_submenu_alarm
+          items:
+            - type: back
+              text: ' ⏴ Back '
+            - type: command
+              text: !lambda |-
+                return std::string(" Alarm [") + (id(global_feature_alarm_enabled) ? "ON" : "OFF") + "]";
+              on_value:
+                then:
+                  - if:
+                      condition:
+                        lambda: 'return id(global_feature_alarm_enabled);'
+                      then:
+                        - switch.turn_off: switch_feature_alarm_enabled
+                      else:
+                        - switch.turn_on: switch_feature_alarm_enabled
+            - type: number
+              text: ' Hour '
+              number: feature_alarm_time_hour
+            - type: number
+              text: ' Minute '
+              number: feature_alarm_time_minute
 
 
 # Handle alarm sound
 script:
+  - id: script_feature_alarm_check
+    then:
+      - if:
+          # Condition 1: Check if the alarm switch is on
+          condition:
+            switch.is_on: switch_feature_alarm_enabled
+          then:
+            - if:
+                # Condition 2: Check if the current time matches the dynamic alarm time
+                condition:
+                  lambda: |-
+                    // Get the desired alarm hour and minute from global variables
+                    int alarm_hour = id(global_feature_alarm_hour);
+                    int alarm_minute = id(global_feature_alarm_minute);
+
+                    int current_hour = -1;
+                    int current_minute = -1;
+
+                    auto sntp = id(clockos_time_sntp).now();
+                    if (sntp.is_valid()) {
+                        // return sntp.timestamp;
+                        current_hour = id(clockos_time_sntp).now().hour;
+                        current_minute = id(clockos_time_sntp).now().minute;
+                    }
+
+                    auto ha = id(clockos_time_ha).now();
+                    if (ha.is_valid()) {
+                        current_hour = id(clockos_time_ha).now().hour;
+                        current_minute = id(clockos_time_ha).now().minute;
+                    }
+
+                    // Return true if current time matches the alarm time
+                    return (current_hour == alarm_hour) && (current_minute == alarm_minute);
+                then:
+                  - script.execute: script_update_last_activity
+                  - display_menu.hide: main_menu
+                  - display.page.show: page_app_alarm
+                  - switch.turn_on: switch_feature_alarm_active
   - id: script_feature_alarm_sound
     then:
       # Play the most annoying alarm sound possible (beep beep beep beep x4, wait ... repeat)
       - rtttl.play: 'Untitled:d=32,o=6,b=100:e,p,e,p,e,p,e,p,p,p,p,p,e,p,e,p,e,p,e,p,p,p,p,p,e,p,e,p,e,p,e,p,p,p,p,p,e,p,e,p,e,p,e'
       - delay: 5s
-      - script.execute: script_feature_alarm_sound_repeat
+      - if:
+          condition:
+            switch.is_on: switch_feature_alarm_enabled
+          then:
+            - script.execute: script_feature_alarm_sound_repeat
   - id: script_feature_alarm_sound_repeat
     then:
       - delay: 1s
-      - script.execute: script_feature_alarm_sound
+      - if:
+          condition:
+            switch.is_on: switch_feature_alarm_enabled
+          then:
+            - script.execute: script_feature_alarm_sound
+
 
 
 # Wake up time hours/minutes
@@ -158,10 +193,10 @@ number:
             id(global_feature_alarm_minute) = (int)x;
 
 
-# Silence alarm when knob button is pressed
+# Silence alarm when knob/select button is pressed
 binary_sensor:
   - platform: gpio
-    id: !extend clockos_knob_button
+    id: !extend clockos_select_button
     on_press:
       then:
       - if:

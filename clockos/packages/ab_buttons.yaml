@@ -1,0 +1,38 @@
+################################################################
+# A/B buttons configuration
+################################################################
+binary_sensor:
+  # Button A
+  - platform: gpio
+    id: clockos_button_a
+    name: "Button A"
+    internal: true
+    pin:
+      number: ${clockos_pin_button_a}
+      mode: INPUT_PULLUP
+      inverted: True
+    on_press: 
+      then:
+        - script.execute: script_update_last_activity
+        - lambda: 'id(clockos_global_button_a_pressed) = 1;'
+    on_release:
+      then:
+        - lambda: 'id(clockos_global_button_a_pressed) = 0;'
+
+  # Button A
+  - platform: gpio
+    id: clockos_button_b
+    name: "Button B"
+    internal: true
+    pin:
+      number: ${clockos_pin_button_b}
+      mode: INPUT_PULLUP
+      inverted: True
+    on_press: 
+      then:
+        - script.execute: script_update_last_activity
+        - lambda: 'id(clockos_global_button_b_pressed) = 1;'
+    on_release:
+      then:
+        - lambda: 'id(clockos_global_button_b_pressed) = 0;'
+

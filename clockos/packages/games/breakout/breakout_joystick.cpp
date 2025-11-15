@@ -12,7 +12,8 @@
     int brick_h = 7;
     int brick_max_hp = 5;
     int knob_max = 50;
-    int rumble_duration = 4;
+    // int rumble_duration = 4;
+    int rumble_duration = 8;
     int pause_duration = 100; // 100 frames, at 30fps = ~3 seconds
     int points_per_brick = 5;
     int points_per_paddle_hit = 10;
@@ -80,13 +81,45 @@
     static int max_projectiles = 8;
     static std::vector<Projectile> projectiles = {};
 
-    // Centered default pad position 
+    // Calculate pad position based on knob state
     static float paddle_x = paddle_x = (screen_w - paddle_w) / 2.0;
     
     // Knob support
-    if (!id(clockos_knob).is_failed()) {
-        // Calculate pad position based on knob state
-        paddle_x = id(clockos_knob).state * ((float)(screen_w - paddle_w) / knob_max);
+    // if (!id(clockos_knob).is_failed()) {
+    //     paddle_x = id(clockos_knob).state * ((float)(screen_w - paddle_w) / knob_max);
+    // }
+
+
+    auto apply_exponential_curve = [](float x) -> float {
+        // Clamp values between -1 and 1
+        // The input value is 'x' (your -1 to 1 linear value).
+        // Define the exponent P. Use a float (e.g., 3.0)
+        float exponent = 5.0; 
+        
+        // Calculate the curved output:
+        // 1. Get the magnitude: std::fabs(x)
+        // 2. Raise the magnitude to the power of P: std::pow(std::fabs(x), exponent)
+        // 3. Reapply the original sign: (x < 0.0 ? -1.0 : 1.0)
+        
+        float sign = (x < 0.0 ? -1.0 : 1.0);
+        float curve_magnitude = std::pow(std::fabs(x), exponent);
+        
+        return sign * curve_magnitude;
+    };
+
+    // Joystick support
+    if (!id(clockos_joystick_x).is_failed()) {
+        float joystick_pos = id(clockos_joystick_x).state;
+        joystick_pos = apply_exponential_curve(joystick_pos);
+        float max_speed = 4.2f; // Adjust for desired curve (higher = more exponential)
+        paddle_x -= joystick_pos * max_speed;
+        
+        // Limit paddle position to screen bounds
+        if (paddle_x < 0) {
+            paddle_x = 0;
+        } else if (paddle_x + paddle_w > screen_w) {
+            paddle_x = screen_w - paddle_w;
+        }
     }
 
     int paddle_y = screen_h - paddle_h;

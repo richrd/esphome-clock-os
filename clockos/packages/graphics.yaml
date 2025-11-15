@@ -53,3 +53,11 @@ font:
     extras:
       - file: "gfonts://Noto+Sans+Symbols+2"
         glyphs: "⏴⏵"
+
+  # Menu font
+  - file: "gfonts://Exo+2"
+    id: font_menu
+    size: 12
+    extras:
+      - file: "gfonts://Noto+Sans+Symbols+2"
+        glyphs: "⏴⏵"

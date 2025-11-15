@@ -1,0 +1,28 @@
+
+display:
+  - id: !extend clockos_display
+    pages:
+      - id: page_demo_doodles
+        lambda: !include "doodles.cpp"
+
+graphical_display_menu:
+  id: main_menu
+  items:
+    - id: !extend menu_submenu_games
+      items:
+        - id: !extend menu_submenu_demos
+          items:
+            - type: command
+              text: ' Doodles '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_demo_doodles
+
+# Image assets
+image:
+  defaults:
+    type: BINARY
+  images:
+    - file: clockos/packages/demos/doodles/cat_doodle.png
+      id: image_doodle_01

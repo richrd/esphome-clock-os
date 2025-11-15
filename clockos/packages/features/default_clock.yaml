@@ -1,0 +1,30 @@
+
+graph:
+  # Show bare-minimum auto-ranged graph
+  - id: wifi_graph
+    duration: 60s
+    width: 124
+    height: 16
+    traces:
+      - sensor: wifi_rssi
+        line_thickness: 2
+        continuous: True
+
+display:
+  - id: !extend clockos_display
+    pages:
+      - id: page_main
+        lambda: !include "default_clock.cpp"
+
+# Add alarm menu items
+graphical_display_menu:
+  id: main_menu
+  items:
+    - id: !extend menu_submenu_clock
+      items:
+        - type: command
+          text: ' Default clock '
+          on_value:
+            then:
+                - display_menu.hide: main_menu
+                - display.page.show: page_main

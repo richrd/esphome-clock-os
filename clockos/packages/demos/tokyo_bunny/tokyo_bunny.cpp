@@ -23,11 +23,11 @@
         frame = 0;
     }
 
-    if (id(global_knob_direction) != 0) {
+    if (id(clockos_global_knob_direction) != 0) {
         // Speed up/down animation based on knob turn
-        frames_per_update += id(global_knob_direction);
+        frames_per_update += id(clockos_global_knob_direction);
         // Reset knob direction to avoid continuous changes
-        id(global_knob_direction) = 0;
+        id(clockos_global_knob_direction) = 0;
     }
 
     frame++;

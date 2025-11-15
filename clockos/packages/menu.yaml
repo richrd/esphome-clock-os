@@ -8,7 +8,7 @@ graphical_display_menu:
   on_redraw:
     then:
       component.update: clockos_display
-  font: font_sm
+  font: font_menu
   mode: rotary
   menu_item_value: !lambda |-
     // Customize menu value editing visuals
@@ -30,18 +30,6 @@ graphical_display_menu:
       items:
       - type: back
         text: ' ⏴ Back '
-      - type: command
-        text: ' Show clock '
-        on_value:
-          then:
-              - display_menu.hide: main_menu
-              - display.page.show: page_main
-      - type: command
-        text: ' Show analog clock '
-        on_value:
-          then:
-              - display_menu.hide: main_menu
-              - display.page.show: page_analog_clock
     - type: menu
       text: ' Games ⏵ '
       id: menu_submenu_games
@@ -94,7 +82,10 @@ graphical_display_menu:
           text: ' ⏴ Back '
         - type: number
           text: ' Brightness '
-          number: screen_brightness
+          number: clockos_number_screen_brightness
+        - type: number
+          text: ' Screen timeout '
+          number: clockos_number_display_timeout
         - type: command
           text: !lambda |-
             return std::string(" Rumble [") + (id(global_game_rumble) ? "ON" : "OFF") + "]";
@@ -121,7 +112,7 @@ graphical_display_menu:
                     - switch.turn_on: switch_game_sound
         - type: number
           text: ' Volume '
-          number: buzzer_volume
+          number: clockos_number_beeper_volume
     - type: command
       text: ' Close '
       on_value:

@@ -32,7 +32,7 @@
 
     // This is defined in main.yaml and updated by the knob events
     // When a game update cycle is completed the value is reset to 0
-    int knob_direction = id(global_knob_direction);
+    int knob_direction = id(clockos_global_knob_direction);
 
     int PICKUP_TYPE_NORMAL = 1;
     static std::vector<Pickup> pickups = {};
@@ -101,7 +101,7 @@
 
     auto rumble = [&]() {
         if (id(global_game_rumble)) {
-            id(rumble_output).turn_on();
+            id(clockos_output_rumble).turn_on();
             rumble_frames = rumble_duration;
         }
     };
@@ -123,7 +123,7 @@
     if (rumble_frames > 0) {
         rumble_frames--;
         if (rumble_frames == 0) {
-            id(rumble_output).turn_off();
+            id(clockos_output_rumble).turn_off();
         }
     }
 
@@ -132,7 +132,7 @@
     
     BodyPart head = snake_body.back();
     if (frame == frames_per_update) {
-        if (!clockos_global_game_autoplay) {
+        if (!id(clockos_global_game_autoplay)) {
             if (knob_direction == 1) {
                 // Knob turned clockwise
                 if (direction_x != 0) {
@@ -328,7 +328,7 @@
 
         // Handle completed update
         frame = 0;
-        id(global_knob_direction) = 0;
+        id(clockos_global_knob_direction) = 0;
     }
 
     /*
@@ -359,7 +359,7 @@
     auto draw_direction = [&]()
     {
         // Draw knob direction indicator in top center of status bar
-        if (id(global_knob_direction) == 0) {
+        if (id(clockos_global_knob_direction) == 0) {
             return;
         }
         int direction_icon_w = 5;
@@ -370,11 +370,11 @@
         it.draw_pixel_at(direction_icon_x + 2, direction_icon_y, COLOR_ON);
         it.draw_pixel_at(direction_icon_x + 2, direction_icon_y+4, COLOR_ON);
         it.line(direction_icon_x, direction_icon_y+2, direction_icon_x+direction_icon_w-1, direction_icon_y+2);
-        if (id(global_knob_direction) == 1) {
+        if (id(clockos_global_knob_direction) == 1) {
             // Clockwise
             it.line(direction_icon_x, direction_icon_y+2, direction_icon_x, direction_icon_y+direction_icon_h-1);
             it.line(direction_icon_x+3, direction_icon_y+1, direction_icon_x+3, direction_icon_y+3);
-        } else if (id(global_knob_direction) == -1) {
+        } else if (id(clockos_global_knob_direction) == -1) {
             // Anti-clockwise
             it.line(direction_icon_x+direction_icon_w-1, direction_icon_y+2, direction_icon_x+direction_icon_w-1, direction_icon_y+direction_icon_h-1);
             it.line(direction_icon_x+1, direction_icon_y+1, direction_icon_x+1, direction_icon_y+3);

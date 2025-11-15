@@ -25,7 +25,7 @@ script:
       - logger.log: "Starting Wi-Fi setup mode..."
       - wifi.disable
       - button.press: clockos_feature_system_button_factory_reset
-      - button.press: restart_button
+      - button.press: clockos_button_restart
 
 
 graphical_display_menu:
@@ -62,7 +62,7 @@ graphical_display_menu:
                 then:
                   - logger.log: "Restarting ESP32..."
                   - delay: 100ms
-                  - button.press: restart_button
+                  - button.press: clockos_button_restart
             - type: menu
               text: " Factory Reset "
               items:

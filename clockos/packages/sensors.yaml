@@ -16,7 +16,7 @@ text_sensor:
   # Home Assistant Sensors
   - platform: homeassistant
     entity_id: sensor.local_sunrise
-    id: sunrise_time
+    id: clockos_sunrise_time
     name: "Sunrise Time"
 
   - platform: homeassistant
@@ -47,3 +47,12 @@ sensor:
       return heap_caps_get_free_size(MALLOC_CAP_8BIT);
     update_interval: 60s
     unit_of_measurement: "bytes"
+
+  - platform: homeassistant
+    id: clockos_ha_temperature
+    entity_id: sensor.weather_temperature
+
+  - platform: homeassistant
+    id: clockos_ha_humidity
+    entity_id: weather.forecast_home
+    attribute: humidity

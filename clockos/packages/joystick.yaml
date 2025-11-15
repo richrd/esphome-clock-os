@@ -1,0 +1,40 @@
+################################################################
+# Joystick configuration
+################################################################
+sensor:
+  - platform: adc
+    attenuation: 12dB
+    pin: ${clockos_pin_joystick_x}
+    name: "Joystick X"
+    id: clockos_joystick_x
+    internal: true
+    update_interval: .1s
+    filters:
+      - lambda: return (x - 0.14 - 1.5) * (2.0/3.0);
+
+  - platform: adc
+    attenuation: 12dB
+    pin: ${clockos_pin_joystick_y}
+    name: "Joystick Y"
+    id: clockos_joystick_y
+    internal: true
+    update_interval: .1s
+    filters:
+      - lambda: return (x - 0.14 - 1.5) * (2.0/3.0);
+
+    on_value:
+      then:
+        - if:
+            condition:
+              lambda: 'return x < -0.2;'
+            then:
+              - script.execute: script_update_last_activity
+              - display_menu.down
+              - lambda: 'id(clockos_global_knob_direction) = 1;'
+        - if:
+            condition:
+              lambda: 'return x > 0.2;'
+            then:
+              - script.execute: script_update_last_activity
+              - display_menu.up
+              - lambda: 'id(clockos_global_knob_direction) = -1;'

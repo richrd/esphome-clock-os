@@ -10,19 +10,15 @@
     const int available_chars_count = sizeof(available_chars);
     static int current_char_index = 0;
 
-
-    // id(global_knob_press_handled) = true;
-
-    if(id(global_knob_pressed)) {
+    if(id(clockos_global_knob_pressed)) {
         // Activate the main menu
         id(main_menu).show();
-        // id(global_knob_press_handled) = false;
-        id(global_knob_pressed) = false;
+        id(clockos_global_knob_pressed) = false;
         return;
     }
 
-    if (id(global_knob_direction) != 0) {
-        current_char_index += id(global_knob_direction);
+    if (id(clockos_global_knob_direction) != 0) {
+        current_char_index += id(clockos_global_knob_direction);
         if( current_char_index < 0 ) {
             current_char_index = available_chars_count - 1;
         } else if( current_char_index >= available_chars_count ) {
@@ -30,7 +26,7 @@
         }
 
         // Reset knob direction to avoid continuous changes
-        id(global_knob_direction) = 0;
+        id(clockos_global_knob_direction) = 0;
     }
 
 

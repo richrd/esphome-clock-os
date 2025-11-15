@@ -5,7 +5,7 @@
 # Settings
 number:
   - platform: template
-    id: screen_brightness
+    id: clockos_number_screen_brightness
     name: "Screen Brightness"
     icon: "mdi:brightness-percent"
     step: 10
@@ -16,8 +16,22 @@ number:
     set_action:
     - lambda: |-
         id(clockos_display).set_contrast(x / 100.0);
+
   - platform: template
-    id: buzzer_volume
+    id: clockos_number_display_timeout
+    name: "Screen timeout"
+    icon: "mdi:power-sleep"
+    step: 1
+    min_value: 0
+    max_value: 60
+    optimistic: true
+    initial_value: 0
+    set_action:
+    - lambda: |-
+        id(clockos_global_display_timeout) = (int)x * 60;
+
+  - platform: template
+    id: clockos_number_beeper_volume
     name: "Volume"
     icon: "mdi:speaker"
     step: 5
@@ -45,7 +59,7 @@ rtttl:
 
 switch:
   - platform: gpio
-    id: rumble_output
+    id: clockos_output_rumble
     pin: ${clockos_pin_rumble_motor}
     name: "Rumble Motor"
   - platform: template
@@ -87,22 +101,13 @@ display:
     auto_clear_enabled: true
     update_interval: 16ms
 
-    pages:
-
-      - id: page_main
-        lambda: !include "../screens/clock.cpp"
-
-      - id: page_analog_clock
-        lambda: !include "../screens/analog_clock.cpp"
-
-
 
 ################################################################
 # Input / Encoder
 ################################################################
 sensor:
   - platform: rotary_encoder
-    id: knob
+    id: clockos_knob
     name: "Knob"
     internal: true
     pin_a:
@@ -118,11 +123,13 @@ sensor:
         input: true
         pullup: true
     on_anticlockwise:
+      - script.execute: script_update_last_activity
       - display_menu.up: main_menu
-      - lambda: 'id(global_knob_direction) = -1;'
+      - lambda: 'id(clockos_global_knob_direction) = -1;'
     on_clockwise:
+      - script.execute: script_update_last_activity
       - display_menu.down: main_menu
-      - lambda: 'id(global_knob_direction) = 1;'
+      - lambda: 'id(clockos_global_knob_direction) = 1;'
     min_value: 0
     max_value: 50
 
@@ -132,11 +139,11 @@ sensor:
 ################################################################
 binary_sensor:
   - platform: gpio
-    id: clockos_knob_button
+    id: clockos_select_button
     name: "Knob Button"
     internal: true
     pin:
-      number: ${clockos_pin_encoder_button}
+      number: ${clockos_pin_select_button}
       mode: INPUT_PULLUP
       inverted: True
     filters:
@@ -144,23 +151,26 @@ binary_sensor:
     on_press:
       # Handle knob button press for menu navigation
       then:
-      - if:
-          condition:
-            # If the main menu is already active (i.e., we're navigating within it)
-            - display_menu.is_active: main_menu
-          then:
-            # Enter (or select the current item) in the main menu
-            - display_menu.enter: main_menu
-          else:
-            if:
-              condition:
-                # Check that knob button isn't handled already
-                - lambda: 'return !id(global_knob_press_handled);'
-              then:
-                - display_menu.show: main_menu
-              else:
-                - lambda: 'id(global_knob_pressed) = true;'
+        - if:
+            condition:
+              # If the main menu is already active (i.e., we're navigating within it)
+              - display_menu.is_active: main_menu
+            then:
+              # Enter (or select the current item) in the main menu
+              - display_menu.enter: main_menu
+            else:
+              if:
+                condition:
+                  # Check that knob button isn't handled already
+                  - lambda: 'return !id(clockos_global_knob_press_handled);'
+                then:
+                  - display_menu.show: main_menu
+                  - lambda: id(clockos_output_rumble).turn_off();
+                else:
+                  - lambda: 'id(clockos_global_knob_pressed) = true;'
+        - script.execute: script_update_last_activity
+
     on_double_click:
-      - lambda: 'id(global_knob_pressed) = false; id(global_knob_press_handled) = false;'
+      - lambda: 'id(clockos_global_knob_pressed) = false; id(clockos_global_knob_press_handled) = false;'
       - display_menu.hide: main_menu
       - display.page.show: page_main

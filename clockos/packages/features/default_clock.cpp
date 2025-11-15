@@ -50,17 +50,29 @@
       it.graph(2, 48, id(wifi_graph));
 
       // Show current time
-      it.printf(0, -10, id(font_xxl), "%02d:%02d", id(clockos_main_time).now().hour, id(clockos_main_time).now().minute);
+      int hour = id(clockos_time_sntp).now().hour;
+      int minute = id(clockos_time_sntp).now().minute;
+
+      float current_timestamp = id(clockos_current_timestamp).state;
+      // Check if the timestamp is valid (not NAN)
+      if (!isnan(current_timestamp)) {
+        // 2. Convert the timestamp (float) back to a native ESPTime object
+        // The method takes an 'epoch_second' (a 32-bit integer).
+        auto current_time_object = ESPTime::from_epoch_local((uint32_t)current_timestamp);
+        hour = current_time_object.hour;
+        minute = current_time_object.minute;
+      }
+      it.printf(0, -10, id(font_xxl), "%02d:%02d", hour, minute);
 
       // Show raw sunrise time
       int small_text_y = 31;
       draw_sun(0, small_text_y+2);
-      if (id(sunrise_time).has_state()) {
-        std::string sunrise = id(sunrise_time).state.c_str();
+      if (id(clockos_sunrise_time).has_state()) {
+        std::string sunrise = id(clockos_sunrise_time).state.c_str();
         it.printf(14, small_text_y, id(font_sm), "%s", sunrise.c_str());
       } else {
         it.print(14, small_text_y, id(font_sm), "--:--");
       }
 
       // Show temperature & humidity
-      it.printf(it.get_width(), small_text_y, id(font_sm), TextAlign::TOP_RIGHT, "%.1f°C  %.0f%%", id(ha_temperature).state, id(ha_humidity).state);
+      it.printf(it.get_width(), small_text_y, id(font_sm), TextAlign::TOP_RIGHT, "%.1f°C  %.0f%%", id(clockos_ha_temperature).state, id(clockos_ha_humidity).state);

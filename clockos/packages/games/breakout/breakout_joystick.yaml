@@ -1,0 +1,23 @@
+
+display:
+  - id: !extend clockos_display
+    pages:
+      - id: page_game_breakout
+        lambda: !include "breakout_joystick.cpp"
+
+graphical_display_menu:
+  id: main_menu
+  items:
+    - id: !extend menu_submenu_games
+      items:
+        - type: menu
+          text: ' Breakout ⏵ '
+          items:
+            - type: back
+              text: ' ⏴ Back '
+            - type: command
+              text: ' Play '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_game_breakout

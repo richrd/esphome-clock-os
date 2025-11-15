@@ -15,7 +15,7 @@ graphical_display_menu:
           on_value:
             then:
                 - display_menu.hide: main_menu
-                - lambda: 'id(global_knob_press_handled) = true;'
+                - lambda: 'id(clockos_global_knob_press_handled) = true;'
                 - display.page.show: page_app_floorplan
 
 # Image assets

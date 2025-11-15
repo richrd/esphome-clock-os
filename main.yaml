@@ -1,6 +1,9 @@
 substitutions:
   # General configuration
+  # Set your device settings here according to your hardware
   clockos_device_name: esp32-c3-mini-2
+  clockos_board: esp32-c3-devkitm-1
+  clockos_framework_type: esp-idf
   clockos_device_friendly_name: "ClockOS"
   clockos_fallback_hotspot_name: "ClockOS Fallback Hotspot"
   clockos_ota_password: !secret clockos_ota_password
@@ -8,35 +11,29 @@ substitutions:
   clockos_display_model: "SSD1306 128x64"
 
   # GPIO pins
+  # Set which GPIO pins you are using for the hardware components
   clockos_pin_beeper: GPIO05
   clockos_pin_rumble_motor: GPIO10
   clockos_pin_display_sda: GPIO03
   clockos_pin_display_scl: GPIO04
   clockos_pin_encoder_a: GPIO02
   clockos_pin_encoder_b: GPIO1
-  clockos_pin_encoder_button: GPIO0
+  clockos_pin_select_button: GPIO0
 
+  # Joystick pins
+  clockos_pin_joystick_x: GPIO32
+  clockos_pin_joystick_y: GPIO33
 
-sensor:
-  - platform: homeassistant
-    id: ha_temperature
-    entity_id: sensor.weather_temperature
+  # Button pins (A and B buttons)
+  clockos_pin_button_a: GPIO13
+  clockos_pin_button_b: GPIO25
 
-  - platform: homeassistant
-    id: ha_humidity
-    entity_id: weather.forecast_home
-    attribute: humidity
-
-graph:
-  # Show bare-minimum auto-ranged graph
-  - id: wifi_graph
-    duration: 60s
-    width: 124
-    height: 16
-    traces:
-      - sensor: wifi_rssi
-        line_thickness: 2
-        continuous: True
+  # Floorplan config
+  clockos_feature_floorplan_items: |-
+    // Add your floorplan items here in the format (you'll also need to draw your floorplan and replace the default image with your own file):
+    // {x_position, y_position, "entity_id"},
+    // For example:
+    // {50, 40, "light.livingroom_ceiling_light"},
 
 packages:
   # Core
@@ -47,6 +44,12 @@ packages:
   - !include clockos/packages/graphics.yaml
   - !include clockos/packages/sensors.yaml
   - !include clockos/packages/menu.yaml
+  - !include clockos/packages/features/default_clock.yaml
+  - !include clockos/packages/features/analog_clock.yaml
+  # Uncomment for joystick support
+  # - !include clockos/packages/joystick.yaml
+  # Uncomment for A/B button support
+  # - !include clockos/packages/ab_buttons.yaml
 
   # Features
   - !include clockos/packages/features/alarm.yaml
@@ -55,7 +58,9 @@ packages:
   - !include clockos/packages/features/system.yaml
 
   # Games
+  # If you're using a joystick, comment out the default breakout and uncomment the joystick version
   - !include clockos/packages/games/breakout/breakout.yaml
+  # - !include clockos/packages/games/breakout/breakout_joystick.yaml
   - !include clockos/packages/games/snake/snake.yaml
 
   # Demos
@@ -64,3 +69,8 @@ packages:
   - !include clockos/packages/demos/text_input/text_input.yaml
   - !include clockos/packages/demos/tokyo_bunny/tokyo_bunny.yaml
   - !include clockos/packages/demos/bunny_wiggle/bunny_wiggle.yaml
+  - !include clockos/packages/demos/doodles/doodles.yaml
+  
+  # Uncomment if you have a joystick enabled
+  # - !include clockos/packages/demos/joystick_test/joystick_test.yaml
+  # - !include clockos/packages/demos/pxl_paint/pxl_paint.yaml

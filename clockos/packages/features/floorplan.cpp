@@ -15,39 +15,14 @@
 
     static FloorplanItem floor_plan_items[] = {
         {48, 6, ""}, // Index 0 reserved for back button
-        // KITCHEN
-        // Kitchen led strip
-        {8, 8, "light.new_esp32_1_esp_32_1_led_strip"},
-        // Kitchen vibe light
-        {6, 42, "light.sonoff_socket_6_kitchen_socket_6_relay"},
-        // Dining room ceiling light
-        {15, 52, "light.sonoff_mini_2_sonoff_mini_2_relay"},
-
-        // LIVINGROOM
-        // TV backlight
-        {43, 35, "light.esp_32_n3_esp_32_m3_led_strip"},
-        // Main light
-        {56, 47, "light.sonoff_mini_1_sonoff_mini_1_relay"},
-        // Monitor backlight
-        {85, 53, "light.espnode2_monitor_led_strip"},
-
-        // BEDROOM
-        // Bedroom leds
-        {94, 36, "light.sonoff_basic_1_bedroom_sonoff_basic_1_relay"},
-        // Bedroom ceiling light
-        {111, 33, "light.sonoff_basic_3_bedroom_ceiling_lamp_sonoff_basic_3_relay"},
-        // Bed light
-        {120, 43, "light.esp32_3_new_led_strip"},
-
-        // BATHROOM
-        {50, 22, "light.esp32_01_short_led_strip"},
+        ${clockos_feature_floorplan_items}
     };
 
-    if (id(global_knob_direction) != 0) {
+    if (id(clockos_global_knob_direction) != 0) {
         // Speed up/down animation based on knob turn
-        current_index += id(global_knob_direction);
+        current_index += id(clockos_global_knob_direction);
         // Reset knob direction to avoid continuous changes
-        id(global_knob_direction) = 0;
+        id(clockos_global_knob_direction) = 0;
         if (current_index < 0) {
             current_index = 0;
         } else if (current_index >= sizeof(floor_plan_items)/sizeof(FloorplanItem)) {
@@ -55,7 +30,7 @@
         }
     }
 
-    if (id(global_knob_pressed)) {
+    if (id(clockos_global_knob_pressed)) {
         // Activate entity at current index
         if (current_index == 0) {
             // Back button pressed
@@ -69,7 +44,7 @@
                 id(script_toggle_ha_entity)->execute(entity_name);
             }
         }
-        id(global_knob_pressed) = false;
+        id(clockos_global_knob_pressed) = false;
     }
 
 

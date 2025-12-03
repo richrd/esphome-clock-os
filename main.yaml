@@ -66,6 +66,7 @@ packages:
   # Demos
   - !include clockos/packages/demos/dvd_screen_saver/dvd_screen_saver.yaml
   - !include clockos/packages/demos/spin/spin.yaml
+  - !include clockos/packages/demos/cat/cat.yaml
   - !include clockos/packages/demos/text_input/text_input.yaml
   - !include clockos/packages/demos/tokyo_bunny/tokyo_bunny.yaml
   - !include clockos/packages/demos/bunny_wiggle/bunny_wiggle.yaml

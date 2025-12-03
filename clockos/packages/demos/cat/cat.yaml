@@ -1,0 +1,48 @@
+
+display:
+  - id: !extend clockos_display
+    pages:
+      - id: page_demo_cat
+        lambda: !include "cat.cpp"
+
+
+graphical_display_menu:
+  id: main_menu
+  items:
+    - id: !extend menu_submenu_games
+      items:
+        - id: !extend menu_submenu_demos
+          items:
+            - type: command
+              text: ' Cat & Yarn '
+              on_value:
+                then:
+                    - display_menu.hide: main_menu
+                    - display.page.show: page_demo_cat
+
+
+# Image assets
+image:
+  defaults:
+    type: BINARY
+  images:
+    - file: clockos/packages/demos/cat/sprites/cat_sitting.png
+      id: image_cat_sitting_01
+
+
+animation:
+  - file: "clockos/packages/demos/cat/sprites/ball.gif"
+    id: animation_cat_ball
+    type: BINARY
+  - file: "clockos/packages/demos/cat/sprites/cat_walking_left.gif"
+    id: animation_cat_walk_left
+    type: BINARY
+  - file: "clockos/packages/demos/cat/sprites/cat_walking_right.gif"
+    id: animation_cat_walk_right
+    type: BINARY
+  - file: "clockos/packages/demos/cat/sprites/cat_sleeping.gif"
+    id: animation_cat_sleeping
+    type: BINARY
+  - file: "clockos/packages/demos/cat/sprites/cat_tail.gif"
+    id: animation_cat_tail
+    type: BINARY

@@ -4,6 +4,14 @@ ESPHome ClockOS is my work in progress project for an ESPHome based desk clock w
 
 ![Clocks](assets/clocks.jpg)
 
+
+### Contents
+- [Hardware](#hardware)
+- [Software](#software)
+- [Features](#features)
+- [Credits](#credits)
+
+
 ## Hardware
 I'm building my devices with a "freeform circuits" approach using 1.5mm copper wire for the frames and 1mm wire for the connections to the display, rotary encoder etc, but any other method works too as long as the minimum hardware requirements are met. So far I've had a good time with ESP32 C3 Super Mini boards due to their tiny form factor.
 
@@ -18,6 +26,9 @@ Here are the hardware components used, the required ones are marked with a check
 - [ ] Joystick
 - [ ] A / B buttons
 
+## Software
+ClockOS is built on the ESPHome platform.
+
 ## Features
 - Clock and alarm
 - Games (Breakout and Snake)
@@ -26,10 +37,7 @@ Here are the hardware components used, the required ones are marked with a check
 - Settings
 - Display timeout
 
-## Software
-ClockOS is built on the ESPHome platform.
-
-## Menu system
+### Menu system
 The default screen is the Clock, and clicking the encoder opens the main menu, below is the menu hierarchy which outlines the current features of the project:
 
     [ Main Menu ]
@@ -81,9 +89,9 @@ The default screen is the Clock, and clicking the encoder opens the main menu, b
     └── Close
 
 
-## Games
+### Games
 
-### Breakout
+#### Breakout
 ![Breakout Game Screenshot](assets/breakout-screen-1.png)
 
 This is my take on Breakout / Arkanoid. It's played by moving the paddle with the rotary encoder. Features:
@@ -102,7 +110,7 @@ This is my take on Breakout / Arkanoid. It's played by moving the paddle with th
 
 [Code](clockos/packages/games/breakout/breakout.cpp)
 
-### Snake
+#### Snake
 Simple Snake clone, features:
 - Control snake direction by turning the head left & right with the rotary encoder
 - 4 pickups available at all times
@@ -112,21 +120,9 @@ Simple Snake clone, features:
 
 [Code](clockos/packages/games/snake/snake.cpp)
 
-# TODO:
-- [ ] Boot screen
-- [ ] Add option to shows the clock after being idle for a while
-- [X] Add display timeout setting
-    - [ ] Does not work if a real time source isn't available / can't be synced
-- [ ] Add rumble to alarm
-- [ ] Make alarm tone selectable
-- [ ] Add more clock faces and allow selecting the default
-- [X] Pausing a game when rumble is active causes the rumble to stay on, can probably fix by adding a timer which cuts it off after e.g. 2 seconds, or when leaving an app
-- [ ] Make the system easily configurable for end users
-- [ ] Stopwatch feature
-- [ ] Rumble intensity setting (how long to rumble when triggered once)
-    - This should help tune the intensity of rumble in games depending on the type of vibrator motor
-- [ ] Game high scores
-    - [ ] Requires adding a text input component
-- [ ] Fix default clock showing full signal when not connected (show empty bars and X instead)
-    - Similar info in System > Status screen
-- [ ] Fix previous display page flashing when navigating to new page
+# Credits
+- First of all, shoutout to the ESPHome for making this possible!
+- [Peter Akimoto](https://x.com/pakimotochi)
+    - Artistic supervision & motivation ❤️
+    - Tokyo Bunny
+    - Bunny Wiggle animation

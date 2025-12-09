@@ -1,0 +1,18 @@
+# TODO:
+- [ ] Boot screen
+- [ ] Add option to shows the clock after being idle for a while
+- [X] Add display timeout setting
+    - [ ] Does not work if a real time source isn't available / can't be synced
+- [ ] Add rumble to alarm
+- [ ] Make alarm tone selectable
+- [ ] Add more clock faces and allow selecting the default
+- [X] Pausing a game when rumble is active causes the rumble to stay on, can probably fix by adding a timer which cuts it off after e.g. 2 seconds, or when leaving an app
+- [ ] Make the system easily configurable for end users
+- [ ] Stopwatch feature
+- [ ] Rumble intensity setting (how long to rumble when triggered once)
+    - This should help tune the intensity of rumble in games depending on the type of vibrator motor
+- [ ] Game high scores
+    - [ ] Requires adding a text input component
+- [ ] Fix default clock showing full signal when not connected (show empty bars and X instead)
+    - Similar info in System > Status screen
+- [ ] Fix previous display page flashing when navigating to new page

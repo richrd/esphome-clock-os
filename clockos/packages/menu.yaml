@@ -66,14 +66,6 @@ graphical_display_menu:
       items:
         - type: back
           text: ' ⏴ Back '
-        - type: command
-          text: ' Turn off all lights '
-          on_value:
-            then:
-              - homeassistant.service:
-                  service: light.turn_off
-                  data:
-                    entity_id: light.all_lights
     - type: menu
       text: ' Settings ⏵ '
       id: menu_submenu_settings

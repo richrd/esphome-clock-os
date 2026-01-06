@@ -11,6 +11,14 @@ graphical_display_menu:
     - id: !extend menu_submenu_control
       items:
         - type: command
+          text: ' Turn off all lights '
+          on_value:
+            then:
+              - homeassistant.service:
+                  service: light.turn_off
+                  data:
+                    entity_id: light.everything
+        - type: command
           text: ' Floorplan '
           on_value:
             then:

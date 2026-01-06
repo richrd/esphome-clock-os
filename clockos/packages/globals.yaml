@@ -48,7 +48,6 @@ globals:
     type: int
     initial_value: '2'
 
-
   # Display timeout 
 
   # Display activity tracking

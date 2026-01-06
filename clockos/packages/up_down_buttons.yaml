@@ -1,0 +1,34 @@
+################################################################
+# Input / Up / Down buttons
+################################################################
+binary_sensor:
+  - platform: gpio
+    id: clockos_button_up
+    name: "Button Up"
+    internal: true
+    pin:
+      number: ${clockos_pin_button_up}
+      mode: INPUT_PULLUP
+      inverted: True
+    filters:
+    - delayed_on: 10ms
+    on_press:
+      then:
+        - script.execute: script_update_last_activity
+        - display_menu.up: main_menu
+        - lambda: 'id(clockos_global_knob_direction) = -1;'
+  - platform: gpio
+    id: clockos_button_down
+    name: "Button Up"
+    internal: true
+    pin:
+      number: ${clockos_pin_button_down}
+      mode: INPUT_PULLUP
+      inverted: True
+    filters:
+    - delayed_on: 10ms
+    on_press:
+      then:
+        - script.execute: script_update_last_activity
+        - display_menu.down: main_menu
+        - lambda: 'id(clockos_global_knob_direction) = 1;'

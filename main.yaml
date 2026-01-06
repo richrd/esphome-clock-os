@@ -19,6 +19,9 @@ substitutions:
   clockos_pin_encoder_a: GPIO02
   clockos_pin_encoder_b: GPIO1
   clockos_pin_select_button: GPIO0
+  # Uncomment if you have up & down buttons
+  # clockos_pin_button_up: GPIO02
+  # clockos_pin_button_down: GPIO1
 
   # Joystick pins
   clockos_pin_joystick_x: GPIO32
@@ -46,10 +49,12 @@ packages:
   - !include clockos/packages/menu.yaml
   - !include clockos/packages/features/default_clock.yaml
   - !include clockos/packages/features/analog_clock.yaml
+  # Uncomment for up & down button support
+  # - !include clockos/packages/up_down_buttons.yaml
+  # Uncomment for A & B button support
+  # - !include clockos/packages/ab_buttons.yaml
   # Uncomment for joystick support
   # - !include clockos/packages/joystick.yaml
-  # Uncomment for A/B button support
-  # - !include clockos/packages/ab_buttons.yaml
 
   # Features
   - !include clockos/packages/features/alarm.yaml

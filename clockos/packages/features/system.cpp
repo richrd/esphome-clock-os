@@ -18,19 +18,22 @@
 
     if (id(wifi_rssi).has_state())
     {
-        float rssi = id(wifi_rssi).state;
+        float rssi = 0;
         int quality = 0;
-        if (rssi <= -100)
-        {
-            quality = 0;
-        }
-        else if (rssi >= -50)
-        {
-            quality = 100;
-        }
-        else
-        {
-            quality = 2 * (rssi + 100);
+        if (id(wifi_rssi).has_state()) {
+            rssi = id(wifi_rssi).state;
+            if (rssi <= -100)
+            {
+                quality = 0;
+            }
+            else if (rssi >= -50)
+            {
+                quality = 100;
+            }
+            else
+            {
+                quality = 2 * (rssi + 100);
+            }
         }
         it.printf(0, y, id(font_xs), "WiFi: %.0f dBm (%d%%)", rssi, quality);
         y += line_height;

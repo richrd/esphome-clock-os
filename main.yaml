@@ -58,6 +58,7 @@ packages:
 
   # Features
   - !include clockos/packages/features/alarm.yaml
+  - !include clockos/packages/features/stopwatch.yaml
   - !include clockos/packages/features/floorplan.yaml
   - !include clockos/packages/features/sounds.yaml
   - !include clockos/packages/features/system.yaml

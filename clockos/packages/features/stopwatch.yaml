@@ -1,0 +1,19 @@
+
+display:
+  - id: !extend clockos_display
+    pages:
+      - id: page_app_stopwatch
+        lambda: !include "stopwatch.cpp"
+
+graphical_display_menu:
+  id: main_menu
+  items:
+    - id: !extend menu_submenu_clock
+      items:
+        - type: command
+          text: ' Stopwatch '
+          on_value:
+            then:
+                - display_menu.hide: main_menu
+                - lambda: 'id(clockos_global_knob_press_handled) = true;'
+                - display.page.show: page_app_stopwatch

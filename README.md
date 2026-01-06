@@ -48,24 +48,26 @@ The default screen is the Clock, and clicking the encoder opens the main menu, b
     │   │   ├── Alarm [OFF]
     │   │   ├── Hour [9.0]
     │   │   └── Minute [30.0]
+    │   └── Stopwatch
     ├── Games ⏵
-    │   ├── Breakout ⏵
-    │   │   ├── Play
-    │   │   └── Autoplay [OFF]
-    │   ├── Snake ⏵
-    │   │   ├── Play
-    │   │   ├── Speed [7.0]
-    │   │   └── Walls [ON]
+    │   ├── Autoplay [OFF]
     │   └── Demos ⏵
-    │       ├── DVD (bouncing DVD logo screensaver)
-    │       ├── Spin (spinning ball animation)
-    │       ├── Cat & Yarn
-    │       ├── Text Input (WIP)
-    │       ├── Tokyo Bunny
-    │       ├── Bunny Wiggle
-    │       ├── Doodles
-    │       ├── Joystick test
-    │       └── Pixel paint
+    │   │   ├── DVD (bouncing DVD logo screensaver)
+    │   │   ├── Spin (spinning ball animation)
+    │   │   ├── Cat & Yarn
+    │   │   ├── Pinball (WIP) ⏵
+    │   │   ├── Tokyo Bunny
+    │   │   ├── Bunny Wiggle
+    │   │   ├── Doodles
+    │   │   ├── Text Input (WIP)
+    │   │   ├── Joystick test
+    │   │   └── Pixel paint
+    │   ├── Breakout ⏵
+    │   │   └── Play
+    │   └── Snake ⏵
+    │       ├── Play
+    │       ├── Speed [7.0]
+    │       └── Walls [ON]
     ├── Sounds ⏵
     │   ├── Mario
     │   ├── Star Wars

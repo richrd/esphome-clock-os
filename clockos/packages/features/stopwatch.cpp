@@ -5,7 +5,6 @@
 
     static float accumulated_time = 0.0f;
     static float start_time = 0.0f;
-    static float stop_time = 0.0f;
     static bool running = false;
 
     static const char* options[] = {
@@ -15,7 +14,7 @@
         "Back"
     };
     static const int options_count = sizeof(options) / sizeof(options[0]);
-    static int selected_option = 0;
+    static int selected_option = -1;
 
     if (id(clockos_global_knob_direction) != 0) {
         selected_option += id(clockos_global_knob_direction);
@@ -38,13 +37,16 @@
             running = true;
         } else if (selected_option == 1) {
             // Stop
-            accumulated_time += millis() - start_time;
+            if (running) {
+                accumulated_time += millis() - start_time;
+            }
             start_time = 0.0f;
             running = false;
         } else if (selected_option == 2) {
             // Reset
             accumulated_time = 0.0f;
             start_time = 0.0f;
+            running = false;
         } else if (selected_option == 3) {
             // Back
             selected_option = -1;

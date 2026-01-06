@@ -1,0 +1,25 @@
+
+display:
+  - id: !extend clockos_display
+    pages:
+      - id: page_game_pinball
+        lambda: !include "pinball.cpp"
+
+graphical_display_menu:
+  id: main_menu
+  items:
+    - id: !extend menu_submenu_games
+      items:
+        - id: !extend menu_submenu_demos
+          items:
+            - type: menu
+              text: ' Pinball (WIP) ⏵ '
+              items:
+                - type: back
+                  text: ' ⏴ Back '
+                - type: command
+                  text: ' Play '
+                  on_value:
+                    then:
+                        - display_menu.hide: main_menu
+                        - display.page.show: page_game_pinball

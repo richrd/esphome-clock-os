@@ -30,7 +30,7 @@ Here are the hardware components used, the required ones are marked with a check
 ClockOS is built on the ESPHome platform.
 
 ## Features
-- Clock and alarm
+- Clock, alarm and stopwatch
 - Games (Breakout and Snake)
 - Demos (examples of what can be done with graphics)
 - Floorplan (for controlling entities in the house)

@@ -58,15 +58,20 @@
 
     it.fill(COLOR_OFF);
     float now = millis();
-    // Print time in format MM:SS.ss
+    // Print time in format MM:SS.ss or if an hour or more has passed HH:MM:SS
     int total_milliseconds = accumulated_time;
     if (running) {
         total_milliseconds = now - start_time + accumulated_time;
     }
+    int hours = (total_milliseconds / 3600000);
     int minutes = (total_milliseconds / 60000) % 60;
     int seconds = (total_milliseconds / 1000) % 60;
     int milliseconds = total_milliseconds % 1000;
-    it.printf(0, 0, id(font_xl), TextAlign::TOP_LEFT, "%02d:%02d.%02d", minutes, seconds, milliseconds / 10);
+    if (hours == 0) {
+        it.printf(0, 0, id(font_xl), TextAlign::TOP_LEFT, "%02d:%02d.%02d", minutes, seconds, milliseconds / 10);
+    } else {
+        it.printf(0, 0, id(font_xl), TextAlign::TOP_LEFT, "%02d:%02d:%02d", hours, minutes, seconds);
+    }
 
     for (int i = 0; i < options_count; i++) {
         int x = i * (screen_w/options_count);

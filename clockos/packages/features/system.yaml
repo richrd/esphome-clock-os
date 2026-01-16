@@ -1,3 +1,24 @@
+globals:
+  # Keep track of Wi-Fi state
+  - id: clockos_global_wifi_enabled
+    type: bool
+    initial_value: 'true'
+    restore_value: yes
+
+# Enable or disable Wi-Fi on boot based on persisted global
+esphome:
+  on_boot:
+    priority: -1000
+    then:
+      - if:
+          condition:
+            lambda: 'return id(clockos_global_wifi_enabled);'
+          then:
+            - lambda: 'ESP_LOGI("system", "Enabling Wi-Fi on boot as per persisted setting");'
+            - wifi.enable
+          else:
+            - lambda: 'ESP_LOGI("system", "Disabling Wi-Fi on boot as per persisted setting");'
+            - wifi.disable
 
 display:
   - id: !extend clockos_display
@@ -31,45 +52,45 @@ script:
 graphical_display_menu:
   id: main_menu
   items:
-    - id: !extend menu_submenu_settings
+    - type: menu
+      text: ' System ⏵ '
       items:
+        - type: back
+          text: ' ⏴ Back '
+        - type: command
+          text: ' Status '
+          on_value:
+            then:
+                - display_menu.hide: main_menu
+                - display.page.show: page_feature_system
+        - type: command
+          text: !lambda |-
+            return std::string(" Wifi [") + (!id(wifi0).is_disabled() ? "ON" : "OFF") + "]";
+          on_value:
+            then:
+              - if:
+                  condition:
+                    lambda: 'return !id(wifi0).is_disabled();'
+                  then:
+                    - lambda: 'id(clockos_global_wifi_enabled) = false;'
+                    - wifi.disable
+                  else:
+                    - lambda: 'id(clockos_global_wifi_enabled) = true;'
+                    - wifi.enable
+        - type: command
+          text: " Restart "
+          on_value:
+            then:
+              - logger.log: "Restarting ClockOS..."
+              - delay: 100ms
+              - button.press: clockos_button_restart
         - type: menu
-          text: ' System ⏵ '
+          text: " Factory Reset "
           items:
             - type: back
               text: ' ⏴ Back '
             - type: command
-              text: ' Status '
+              text: " Confirm Reset? "
               on_value:
                 then:
-                    - display_menu.hide: main_menu
-                    - display.page.show: page_feature_system
-            - type: command
-              text: !lambda |-
-                return std::string(" Wifi [") + (!id(wifi0).is_disabled() ? "ON" : "OFF") + "]";
-              on_value:
-                then:
-                  - if:
-                      condition:
-                        lambda: 'return !id(wifi0).is_disabled();'
-                      then:
-                        - wifi.disable
-                      else:
-                        - wifi.enable
-            - type: command
-              text: " Restart "
-              on_value:
-                then:
-                  - logger.log: "Restarting ESP32..."
-                  - delay: 100ms
-                  - button.press: clockos_button_restart
-            - type: menu
-              text: " Factory Reset "
-              items:
-                - type: back
-                  text: ' ⏴ Back '
-                - type: command
-                  text: " Confirm Reset? "
-                  on_value:
-                    then:
-                      - script.execute: script_feature_system_start_wifi_setup
+                  - script.execute: script_feature_system_start_wifi_setup

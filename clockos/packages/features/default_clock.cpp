@@ -31,6 +31,27 @@
         }
       }
       
+      if(id(wifi0).is_disabled()) {
+        quality = 0;
+          // Show X icon when wifi is disabled
+        int x_start = 106;
+        int y_start = 11;
+        int x_end = x_start + 7;
+        int y_top = y_start - 7;
+        int y_bottom = y_start;
+
+        // Draw X from top-left to bottom-right
+        it.line(x_start, y_top, x_end, y_bottom);
+        for (int offset = -1; offset <= 1; ++offset) {
+          it.line(x_start + offset, y_top, x_end + offset, y_bottom);
+        }
+        // Draw X from top-right to bottom-left with thickness 3
+        for (int offset = -1; offset <= 1; ++offset) {
+          it.line(x_end + offset, y_top, x_start + offset, y_bottom);
+        }
+      }
+
+
       int bar_x_start = 106;
       int bar_y_start = 28;
       int bar_width = 4;
@@ -46,8 +67,8 @@
           it.rectangle(bar_x, bar_y, bar_width, bar_height);
         }
       }
-      
-      it.graph(2, 48, id(wifi_graph));
+
+      it.graph(0, 48, id(wifi_graph));
 
       // Show current time
       int hour = id(clockos_time_sntp).now().hour;

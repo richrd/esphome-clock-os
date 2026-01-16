@@ -18,6 +18,11 @@ esphome:
       - lambda: |-
           id(clockos_knob).publish_state(25);
 
+      # Initialize display brightness
+      - number.set:
+          id: clockos_number_display_brightness
+          value: !lambda "return int(id(clockos_global_display_brightness));"
+
       # Initialize display timeout
       - number.set:
           id: clockos_number_display_timeout

@@ -5,17 +5,18 @@
 # Settings
 number:
   - platform: template
-    id: clockos_number_screen_brightness
+    id: clockos_number_display_brightness
     name: "Screen Brightness"
     icon: "mdi:brightness-percent"
-    step: 10
-    min_value: 0
+    step: 5
+    min_value: 1
     max_value: 100
     optimistic: true
     initial_value: 50
     set_action:
     - lambda: |-
         id(clockos_display).set_contrast(x / 100.0);
+        id(clockos_global_display_brightness) = x;
 
   - platform: template
     id: clockos_number_display_timeout
@@ -42,6 +43,7 @@ number:
     set_action:
     - lambda: |-
         id(rtttl_player).set_gain(x / 100.0);
+        id(global_global_beeper_volume) = (int)x;
 
 
 ################################################################

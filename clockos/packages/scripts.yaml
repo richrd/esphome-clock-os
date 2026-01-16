@@ -22,3 +22,10 @@ script:
     then:
     - lambda: 'id(clockos_global_knob_press_handled) = false;'
     - display_menu.show: main_menu
+
+  # Navigate back to the main menu
+  - id: script_back_to_main_page
+    then:
+    - lambda: 'ESP_LOGW("script", "Back to main page");'
+    - display_menu.hide: main_menu
+    - display.page.show: page_main

@@ -24,6 +24,12 @@ graphical_display_menu:
     }
     return label;
   items:
+    - type: command
+      text: ' ⏴ Back '
+      on_value:
+        then:
+            - lambda: 'ESP_LOGW("menu", "Back to main page");'
+            - script.execute: script_back_to_main_page
     - type: menu
       text: ' Clock ⏵ '
       id: menu_submenu_clock
@@ -74,7 +80,7 @@ graphical_display_menu:
           text: ' ⏴ Back '
         - type: number
           text: ' Brightness '
-          number: clockos_number_screen_brightness
+          number: clockos_number_display_brightness
         - type: number
           text: ' Screen timeout '
           number: clockos_number_display_timeout
@@ -105,8 +111,3 @@ graphical_display_menu:
         - type: number
           text: ' Volume '
           number: clockos_number_beeper_volume
-    - type: command
-      text: ' Close '
-      on_value:
-        then:
-          - display_menu.hide: main_menu

@@ -58,6 +58,7 @@ packages:
   # - !include clockos/packages/joystick.yaml
 
   # Features
+  - !include clockos/packages/features/boot_screen.yaml
   - !include clockos/packages/features/alarm.yaml
   - !include clockos/packages/features/stopwatch.yaml
   - !include clockos/packages/features/floorplan.yaml

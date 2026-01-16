@@ -1,0 +1,12 @@
+esphome:
+  on_boot:
+    priority: 100
+    then:
+      - display.page.show: page_boot_screen
+
+display:
+  - id: !extend clockos_display
+    pages:
+      - id: page_boot_screen
+        lambda: !include "boot_screen.cpp"
+

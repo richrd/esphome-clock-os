@@ -32,6 +32,7 @@ substitutions:
   clockos_pin_button_b: GPIO25
 
   # Floorplan config
+  clockos_feature_floorplan_all_lights_entity_id: light.everything
   clockos_feature_floorplan_items: |-
     // Add your floorplan items here in the format (you'll also need to draw your floorplan and replace the default image with your own file):
     // {x_position, y_position, "entity_id"},

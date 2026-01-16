@@ -17,7 +17,7 @@ graphical_display_menu:
               - homeassistant.service:
                   service: light.turn_off
                   data:
-                    entity_id: light.everything
+                    entity_id: ${clockos_feature_floorplan_all_lights_entity_id}
         - type: command
           text: ' Floorplan '
           on_value:

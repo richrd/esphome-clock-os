@@ -1,5 +1,5 @@
 # TODO:
-- [ ] Boot screen
+- [X] Boot screen
 - [ ] Add option to shows the clock after being idle for a while
 - [X] Add display timeout setting
     - [ ] Does not work if a real time source isn't available / can't be synced
@@ -16,3 +16,5 @@
 - [X] Fix default clock showing full signal when not connected (show empty bars and X instead)
     - [X] Similar info in System > Status screen
 - [ ] Fix previous display page flashing when navigating to new page
+- [X] Show wifi on/off state on main screen
+- [X] Store wifi on/off state in globals and restore on boot

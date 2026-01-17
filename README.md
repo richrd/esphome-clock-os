@@ -82,12 +82,12 @@ The default screen is the Clock, and clicking the encoder opens the main menu, b
     │   ├── Screen timeout [2.0]
     │   ├── Rumbole [ON]
     │   ├── Sound [ON]
-    │   ├── Volume [2.0]
-    │   └── System ⏵
-    │       ├── Status
-    │       ├── WiFi [ON]
-    │       ├── Restart
-    │       └── Factory reset
+    │   └── Volume [2.0]
+    ├── System ⏵
+    │   ├── Status
+    │   ├── WiFi [ON]
+    │   ├── Restart
+    │   └── Factory reset
     └── Close
 
 
@@ -123,7 +123,7 @@ Simple Snake clone, features:
 [Code](clockos/packages/games/snake/snake.cpp)
 
 # Credits
-- First of all, shoutout to the ESPHome for making this possible!
+- First of all, shoutout to ESPHome for making this possible!
 - [Peter Akimoto](https://x.com/pakimotochi)
     - Artistic supervision & motivation ❤️
     - Tokyo Bunny

@@ -2,19 +2,19 @@
 display:
   - id: !extend clockos_display
     pages:
-      - id: page_demo_joystick_test
+      - id: clockos_page_demo_joystick_test
         lambda: !include "joystick_test.cpp"
 
 graphical_display_menu:
-  id: main_menu
+  id: clockos_menu_main
   items:
-    - id: !extend menu_submenu_games
+    - id: !extend clockos_menu_submenu_games
       items:
-        - id: !extend menu_submenu_demos
+        - id: !extend clockos_menu_submenu_demos
           items:
             - type: command
               text: ' Joystick test '
               on_value:
                 then:
-                    - display_menu.hide: main_menu
-                    - display.page.show: page_demo_joystick_test
+                    - display_menu.hide: clockos_menu_main
+                    - display.page.show: clockos_page_demo_joystick_test

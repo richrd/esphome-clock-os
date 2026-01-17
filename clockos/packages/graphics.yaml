@@ -6,49 +6,49 @@
 font:
   # XXL
   - file: "gfonts://Exo+2"
-    id: font_xxl
+    id: clockos_font_xxl
     size: 40
     extras:
       - file: "gfonts://Noto+Sans+Symbols+2"
         glyphs: "⏴⏵"
   # XL
   - file: "gfonts://Exo+2"
-    id: font_xl
+    id: clockos_font_xl
     size: 32
     extras:
       - file: "gfonts://Noto+Sans+Symbols+2"
         glyphs: "⏴⏵"
   # LG
   - file: "gfonts://Exo+2"
-    id: font_lg
+    id: clockos_font_lg
     size: 20
     extras:
       - file: "gfonts://Noto+Sans+Symbols+2"
         glyphs: "⏴⏵"
   # MD
   - file: "gfonts://Exo+2"
-    id: font_md
+    id: clockos_font_md
     size: 16
     extras:
       - file: "gfonts://Noto+Sans+Symbols+2"
         glyphs: "⏴⏵"
   # SM
   - file: "gfonts://Exo+2"
-    id: font_sm
+    id: clockos_font_sm
     size: 12
     extras:
       - file: "gfonts://Noto+Sans+Symbols+2"
         glyphs: "⏴⏵"
   # XS
   - file: "gfonts://Exo+2"
-    id: font_xs
+    id: clockos_font_xs
     size: 10
     extras:
       - file: "gfonts://Noto+Sans+Symbols+2"
         glyphs: "⏴⏵"
   # XXS
   - file: "gfonts://Ubuntu+Mono"
-    id: font_xxs
+    id: clockos_font_xxs
     size: 10
     extras:
       - file: "gfonts://Noto+Sans+Symbols+2"
@@ -56,7 +56,7 @@ font:
 
   # Menu font
   - file: "gfonts://Exo+2"
-    id: font_menu
+    id: clockos_font_menu
     size: 12
     extras:
       - file: "gfonts://Noto+Sans+Symbols+2"

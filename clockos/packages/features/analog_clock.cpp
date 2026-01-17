@@ -1,6 +1,6 @@
 |-
-    if (id(main_menu).is_active()) {
-    return;
+    if (id(clockos_menu_main).is_active()) {
+      return;
     }
 
     // Config

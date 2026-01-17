@@ -35,13 +35,13 @@
         if (current_index == 0) {
             // Back button pressed
             current_index = -1;
-            id(script_back_to_menu)->execute();
+            id(clockos_script_back_to_menu)->execute();
             return;
         } else if (current_index > 0) {
             std::string entity_name = floor_plan_items[current_index].entity_name;
             if (entity_name != "") {
                 ESP_LOGW("floorplan", "Toggling entity: %s", entity_name.c_str());
-                id(script_toggle_ha_entity)->execute(entity_name);
+                id(clockos_script_toggle_ha_entity)->execute(entity_name);
             }
         }
         id(clockos_global_knob_pressed) = false;

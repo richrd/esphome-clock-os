@@ -14,5 +14,5 @@
     it.filled_rectangle(0, y, progress, bar_height);
 
     if (progress > screen_w) {
-        id(script_back_to_main_page)->execute();
+        id(clockos_script_back_to_main_page)->execute();
     }

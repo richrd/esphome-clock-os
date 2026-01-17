@@ -1,11 +1,11 @@
 globals:
   # Snake speed (1-20)
-  - id: global_game_snake_speed
+  - id: clockos_global_game_snake_speed
     type: int
     initial_value: '7'
 
   # Walls enabled
-  - id: global_game_snake_walls
+  - id: clockos_global_game_snake_walls
     type: bool
     initial_value: 'true'
 
@@ -15,22 +15,22 @@ switch:
     id: switch_game_snake_walls
     restore_mode: RESTORE_DEFAULT_ON
     lambda: |-
-      return id(global_game_snake_walls);
+      return id(clockos_global_game_snake_walls);
     turn_on_action:
-      - lambda: 'id(global_game_snake_walls) = true;'
+      - lambda: 'id(clockos_global_game_snake_walls) = true;'
     turn_off_action:
-      - lambda: 'id(global_game_snake_walls) = false;'
+      - lambda: 'id(clockos_global_game_snake_walls) = false;'
 
 display:
   - id: !extend clockos_display
     pages:
-      - id: page_game_snake
+      - id: clockos_page_game_snake
         lambda: !include "snake.cpp"
 
 graphical_display_menu:
-  id: main_menu
+  id: clockos_menu_main
   items:
-    - id: !extend menu_submenu_games
+    - id: !extend clockos_menu_submenu_games
       items:
         - type: menu
           text: ' Snake ⏵ '
@@ -41,21 +41,21 @@ graphical_display_menu:
               text: ' Play '
               on_value:
                 then:
-                    - display_menu.hide: main_menu
+                    - display_menu.hide: clockos_menu_main
                     # Reset knob direction when resuming so menu usage doesn't interfere with game
                     - lambda: 'id(clockos_global_knob_direction) = 0;'
-                    - display.page.show: page_game_snake
+                    - display.page.show: clockos_page_game_snake
             - type: number
               text: ' Speed '
-              number: snake_speed
+              number: clockos_number_game_snake_speed
             - type: command
               text: !lambda |-
-                return std::string(" Walls [") + (id(global_game_snake_walls) ? "ON" : "OFF") + "]";
+                return std::string(" Walls [") + (id(clockos_global_game_snake_walls) ? "ON" : "OFF") + "]";
               on_value:
                 then:
                   - if:
                       condition:
-                        lambda: 'return id(global_game_snake_walls);'
+                        lambda: 'return id(clockos_global_game_snake_walls);'
                       then:
                         - switch.turn_off: switch_game_snake_walls
                       else:
@@ -63,7 +63,7 @@ graphical_display_menu:
 
 number:
   - platform: template
-    id: snake_speed
+    id: clockos_number_game_snake_speed
     name: "Speed"
     step: 1
     min_value: 1
@@ -72,4 +72,4 @@ number:
     initial_value: 7
     set_action:
     - lambda: |-
-        id(global_game_snake_speed) = (int)x;
+        id(clockos_global_game_snake_speed) = (int)x;

@@ -228,6 +228,7 @@
 
     auto handle_paddle_input = [&]()
     {
+        /*
         if(id(clockos_key_left_paddle).state)
         {
             left_paddle_angle -= 20.3;
@@ -253,6 +254,7 @@
         if (right_paddle_angle < paddle_max_angle) {
             right_paddle_angle = paddle_max_angle;
         }
+        */
     };
 
     auto update_ball = [&](Ball &ball)
@@ -267,7 +269,7 @@
         }
 
         // Host input for testing
-        /**/
+        /*
         if (id(clockos_key_up).state)
         {
             ball.speed_y += input_strength;
@@ -284,6 +286,7 @@
         {
             ball.speed_x += input_strength;
         }
+        */
 
         handle_paddle_input();
         // Gravity
@@ -684,7 +687,7 @@
     
     // draw_paddle(left_paddle_angle, paddle_x_offset, screen_h - 20.0f + vertical_scroll_offset, false);
     draw_paddle(right_paddle_angle, screen_w-paddle_x_offset, screen_h - 20.0f + vertical_scroll_offset, true);
-    // it.printf(screen_w / 2, -2, id(font_xxs), TextAlign::TOP_CENTER, "LVL%d", 10);
-    // it.print(screen_w / 2, -2, id(font_xxs), TextAlign::TOP_CENTER, "Pinball Test");
-    it.printf(screen_w - 2, -2, id(font_xxs), TextAlign::TOP_RIGHT, "Scroll: %d", vertical_scroll_offset);
-    // it.printf(0, 0, id(font_xxs), TextAlign::TOP_LEFT, "x:%.1f y:%.1f", balls[0].x, balls[0].y);
+    // it.printf(screen_w / 2, -2, id(clockos_font_xxs), TextAlign::TOP_CENTER, "LVL%d", 10);
+    // it.print(screen_w / 2, -2, id(clockos_font_xxs), TextAlign::TOP_CENTER, "Pinball Test");
+    it.printf(screen_w - 2, -2, id(clockos_font_xxs), TextAlign::TOP_RIGHT, "Scroll: %d", vertical_scroll_offset);
+    // it.printf(0, 0, id(clockos_font_xxs), TextAlign::TOP_LEFT, "x:%.1f y:%.1f", balls[0].x, balls[0].y);

@@ -3,7 +3,7 @@
 ################################################################
 script:
   # Toggle a Home Assistant entity
-  - id: script_toggle_ha_entity
+  - id: clockos_script_toggle_ha_entity
     parameters:
       entity_id: string
     then:
@@ -18,14 +18,14 @@ script:
             entity_id: !lambda 'return entity_id.c_str();'
 
   # Navigate back to the main menu
-  - id: script_back_to_menu
+  - id: clockos_script_back_to_menu
     then:
     - lambda: 'id(clockos_global_knob_press_handled) = false;'
-    - display_menu.show: main_menu
+    - display_menu.show: clockos_menu_main
 
   # Navigate back to the main menu
-  - id: script_back_to_main_page
+  - id: clockos_script_back_to_main_page
     then:
     - lambda: 'ESP_LOGW("script", "Back to main page");'
-    - display_menu.hide: main_menu
-    - display.page.show: page_main
+    - display_menu.hide: clockos_menu_main
+    - display.page.show: clockos_page_main

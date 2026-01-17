@@ -2,13 +2,13 @@
 display:
   - id: !extend clockos_display
     pages:
-      - id: page_app_floorplan
+      - id: clockos_page_app_floorplan
         lambda: !include "floorplan.cpp"
 
 graphical_display_menu:
-  id: main_menu
+  id: clockos_menu_main
   items:
-    - id: !extend menu_submenu_control
+    - id: !extend clockos_menu_submenu_control
       items:
         - type: command
           text: ' Turn off all lights '
@@ -22,9 +22,9 @@ graphical_display_menu:
           text: ' Floorplan '
           on_value:
             then:
-                - display_menu.hide: main_menu
+                - display_menu.hide: clockos_menu_main
                 - lambda: 'id(clockos_global_knob_press_handled) = true;'
-                - display.page.show: page_app_floorplan
+                - display.page.show: clockos_page_app_floorplan
 
 # Image assets
 image:

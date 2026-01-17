@@ -14,8 +14,8 @@
     
     it.fill(COLOR_OFF);
     // TODO: Fancy graphics
-    it.printf(0, 20, id(font_md), "Alarm: %02d:%02d", id(global_feature_alarm_hour), id(global_feature_alarm_minute));
-    it.printf(0, 40, id(font_md), "Now: %02d:%02d", hour, minute);
+    it.printf(0, 20, id(clockos_font_md), "Alarm: %02d:%02d", id(clockos_global_feature_alarm_hour), id(clockos_global_feature_alarm_minute));
+    it.printf(0, 40, id(clockos_font_md), "Now: %02d:%02d", hour, minute);
     
 
 

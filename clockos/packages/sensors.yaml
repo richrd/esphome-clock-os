@@ -5,44 +5,44 @@ text_sensor:
   # Internal Sensors
   - platform: version
     name: ESPHome Version
-    id: esphome_version
+    id: clockos_esphome_version
 
   - platform: wifi_info
     ip_address:
       name: IP Address
-      id: ip_address
+      id: clockos_ip_address
 
 
   # Home Assistant Sensors
   - platform: homeassistant
     entity_id: sensor.local_sunrise
-    id: clockos_sunrise_time
+    id: clockos_sensor_sunrise_time
     name: "Sunrise Time"
 
   - platform: homeassistant
     entity_id: sensor.ringtone_input
-    id: ringtone_input
+    id: clockos_sensor_ringtone_input
     # This lambda is called whenever HA sends a new value to this text sensor
     on_value:
       lambda: |-
         // The 'x' variable holds the new RTTTL string sent from Home Assistant.
         // Call the play action on the speaker with the received string.
-        id(rtttl_player).play(x);
+        id(clockos_rtttl_player).play(x);
 
 sensor:
   # Internal systems sensors
   - platform: wifi_signal
     internal: true
     update_interval: 2s
-    id: wifi_rssi
+    id: clockos_sensor_wifi_rssi
 
   - platform: uptime
     name: Uptime Sensor
-    id: uptime_sensor
+    id: clockos_sensor_uptime
 
   - platform: template
     name: Free Memory
-    id: free_memory
+    id: clockos_sensor_free_memory
     lambda: |-
       return heap_caps_get_free_size(MALLOC_CAP_8BIT);
     update_interval: 60s

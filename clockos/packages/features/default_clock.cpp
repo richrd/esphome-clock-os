@@ -1,5 +1,5 @@
 |-
-      if (id(main_menu).is_active()) {
+      if (id(clockos_menu_main).is_active()) {
         return;
       }
 
@@ -20,8 +20,8 @@
 
       // // Optional: convert dBm to percentage
       int quality = 0;
-      if (id(wifi_rssi).has_state()) {
-        float rssi = id(wifi_rssi).state;
+      if (id(clockos_sensor_wifi_rssi).has_state()) {
+        float rssi = id(clockos_sensor_wifi_rssi).state;
         if (rssi <= -100) {
           quality = 0;
         } else if (rssi >= -50) {
@@ -31,7 +31,7 @@
         }
       }
       
-      if(id(wifi0).is_disabled()) {
+      if(id(clockos_wifi).is_disabled()) {
         quality = 0;
           // Show X icon when wifi is disabled
         int x_start = 106;
@@ -83,17 +83,17 @@
         hour = current_time_object.hour;
         minute = current_time_object.minute;
       }
-      it.printf(0, -10, id(font_xxl), "%02d:%02d", hour, minute);
+      it.printf(0, -10, id(clockos_font_xxl), "%02d:%02d", hour, minute);
 
       // Show raw sunrise time
       int small_text_y = 31;
       draw_sun(0, small_text_y+2);
-      if (id(clockos_sunrise_time).has_state()) {
-        std::string sunrise = id(clockos_sunrise_time).state.c_str();
-        it.printf(14, small_text_y, id(font_sm), "%s", sunrise.c_str());
+      if (id(clockos_sensor_sunrise_time).has_state()) {
+        std::string sunrise = id(clockos_sensor_sunrise_time).state.c_str();
+        it.printf(14, small_text_y, id(clockos_font_sm), "%s", sunrise.c_str());
       } else {
-        it.print(14, small_text_y, id(font_sm), "--:--");
+        it.print(14, small_text_y, id(clockos_font_sm), "--:--");
       }
 
       // Show temperature & humidity
-      it.printf(it.get_width(), small_text_y, id(font_sm), TextAlign::TOP_RIGHT, "%.1f°C  %.0f%%", id(clockos_ha_temperature).state, id(clockos_ha_humidity).state);
+      it.printf(it.get_width(), small_text_y, id(clockos_font_sm), TextAlign::TOP_RIGHT, "%.1f°C  %.0f%%", id(clockos_ha_temperature).state, id(clockos_ha_humidity).state);

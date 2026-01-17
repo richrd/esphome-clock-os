@@ -23,7 +23,7 @@ esphome:
 display:
   - id: !extend clockos_display
     pages:
-      - id: page_feature_system
+      - id: clockos_page_feature_system
         lambda: !include "system.cpp"
 
 
@@ -50,7 +50,7 @@ script:
 
 
 graphical_display_menu:
-  id: main_menu
+  id: clockos_menu_main
   items:
     - type: menu
       text: ' System ⏵ '
@@ -61,16 +61,16 @@ graphical_display_menu:
           text: ' Status '
           on_value:
             then:
-                - display_menu.hide: main_menu
-                - display.page.show: page_feature_system
+                - display_menu.hide: clockos_menu_main
+                - display.page.show: clockos_page_feature_system
         - type: command
           text: !lambda |-
-            return std::string(" Wifi [") + (!id(wifi0).is_disabled() ? "ON" : "OFF") + "]";
+            return std::string(" Wifi [") + (!id(clockos_wifi).is_disabled() ? "ON" : "OFF") + "]";
           on_value:
             then:
               - if:
                   condition:
-                    lambda: 'return !id(wifi0).is_disabled();'
+                    lambda: 'return !id(clockos_wifi).is_disabled();'
                   then:
                     - lambda: 'id(clockos_global_wifi_enabled) = false;'
                     - wifi.disable

@@ -50,7 +50,7 @@
         } else if (selected_option == 3) {
             // Back
             selected_option = -1;
-            id(script_back_to_menu)->execute();
+            id(clockos_script_back_to_menu)->execute();
             return;
         }
         id(clockos_global_knob_pressed) = false;
@@ -68,9 +68,9 @@
     int seconds = (total_milliseconds / 1000) % 60;
     int milliseconds = total_milliseconds % 1000;
     if (hours == 0) {
-        it.printf(0, 0, id(font_xl), TextAlign::TOP_LEFT, "%02d:%02d.%02d", minutes, seconds, milliseconds / 10);
+        it.printf(0, 0, id(clockos_font_xl), TextAlign::TOP_LEFT, "%02d:%02d.%02d", minutes, seconds, milliseconds / 10);
     } else {
-        it.printf(0, 0, id(font_xl), TextAlign::TOP_LEFT, "%02d:%02d:%02d", hours, minutes, seconds);
+        it.printf(0, 0, id(clockos_font_xl), TextAlign::TOP_LEFT, "%02d:%02d:%02d", hours, minutes, seconds);
     }
 
     for (int i = 0; i < options_count; i++) {
@@ -78,6 +78,6 @@
         if (i == selected_option) {
             it.rectangle(x, screen_h-18, (screen_w/options_count), 18);
         }
-        it.printf(x+1, screen_h-16, id(font_xs), "  %s", options[i]);
+        it.printf(x+1, screen_h-16, id(clockos_font_xs), "  %s", options[i]);
     }
 

@@ -11,7 +11,7 @@ esphome:
   on_boot:
     then:
       # Show main clock page on boot
-      - display.page.show: page_main
+      - display.page.show: clockos_page_main
 
       # The knob position needs to be initialized on boot, otherwise the value is unpredictable
       # It is set here to a mid-point value (max is 50)
@@ -29,7 +29,7 @@ esphome:
           value: !lambda "return id(clockos_global_display_timeout) / 60;"
 
       # Start display activity check loop
-      - script.execute: script_display_activity_check_loop
+      - script.execute: clockos_script_display_activity_check_loop
 
 
 # Enable Home Assistant API
@@ -52,7 +52,7 @@ wifi:
       password: !secret wifi_password
     - ssid: !secret wifi_fallback_ssid
       password: !secret wifi_fallback_password
-  id: wifi0
+  id: clockos_wifi
   reboot_timeout: 0s # Disable WiFi connection-loss reboot
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
@@ -93,38 +93,38 @@ time:
     on_time:
       - seconds: 0
         then:
-          - script.execute: script_check_display_activity
+          - script.execute: clockos_script_check_display_activity
   - platform: homeassistant
     id: clockos_time_ha
     on_time:
       - seconds: 0
         then:
-          - script.execute: script_check_display_activity
+          - script.execute: clockos_script_check_display_activity
 
 # Core scripts
 script:
   # Workaround to check the display activity periodically, even when no time update events occur (if time can't be synced at all)
   # TODO: This doesn't seem to work in all circumstances
-  - id: script_display_activity_check_loop
+  - id: clockos_script_display_activity_check_loop
     mode: restart
     then:
       - lambda: ESP_LOGI("core", "Checking display activity");
-      - script.execute: script_check_display_activity
+      - script.execute: clockos_script_check_display_activity
       - delay: 59s
-      - script.execute: script_display_activity_check_loop_retrigger
+      - script.execute: clockos_script_display_activity_check_loop_retrigger
       
-  - id: script_display_activity_check_loop_retrigger
+  - id: clockos_script_display_activity_check_loop_retrigger
     mode: restart
     then:
       - lambda: ESP_LOGI("core", "Retriggering activity check");
       - delay: 1s
-      - script.execute: script_display_activity_check_loop
+      - script.execute: clockos_script_display_activity_check_loop
 
-  - id: script_check_display_activity
+  - id: clockos_script_check_display_activity
     then:
       - lambda: |-
-          ESP_LOGI("core", "Running script: script_check_display_activity");
-          // ESP_LOGI("core", "Running script: script_check_display_activity");
+          ESP_LOGI("core", "Running script: clockos_script_check_display_activity");
+          // ESP_LOGI("core", "Running script: clockos_script_check_display_activity");
           // Check if the display activity timestamp is older than the timeout setting
           if (
             id(clockos_global_display_timeout) > 0

@@ -16,4 +16,4 @@
     it.image(0, 0, id(animation_bunnywiggle_02), COLOR_ON, COLOR_OFF);
 
     // Draw FPS counter at top-left corner
-    it.printf(0, 0, id(font_xs), COLOR_ON, "FPS: %d", fps);
+    it.printf(0, 0, id(clockos_font_xs), COLOR_ON, "FPS: %d", fps);

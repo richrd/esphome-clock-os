@@ -443,10 +443,10 @@
 
     auto play_sound = [&](std::string sound)
     {
-        if (id(global_game_sound))
+        if (id(clockos_global_sound_enabled))
         {
-            id(rtttl_player).stop();
-            id(rtttl_player).play(sound);
+            id(clockos_rtttl_player).stop();
+            id(clockos_rtttl_player).play(sound);
         }
     };
 
@@ -483,7 +483,7 @@
 
     auto rumble = [&]()
     {
-        if (id(global_game_rumble))
+        if (id(clockos_global_rumble_enabled))
         {
             id(clockos_output_rumble).turn_on();
             rumble_frames = rumble_duration;
@@ -885,12 +885,12 @@
     auto draw_score = [&]()
     {
         int padding_x = 2;
-        it.printf(screen_w - padding_x, -2, id(font_xxs), TextAlign::TOP_RIGHT, "%d", score_ticker);
+        it.printf(screen_w - padding_x, -2, id(clockos_font_xxs), TextAlign::TOP_RIGHT, "%d", score_ticker);
     };
 
     auto draw_level = [&]()
     {
-        it.printf(screen_w / 2, -2, id(font_xxs), TextAlign::TOP_CENTER, "LVL%d", level);
+        it.printf(screen_w / 2, -2, id(clockos_font_xxs), TextAlign::TOP_CENTER, "LVL%d", level);
     };
 
     auto draw_special_brick_corners = [&](int x, int y)
@@ -1199,11 +1199,11 @@
         int text_center_y = screen_h / 2 - overlay_y_offset;
         if (text2 == "")
         {
-            it.printf(text_center_x, text_center_y, id(font_sm), TextAlign::CENTER, text1.c_str());
+            it.printf(text_center_x, text_center_y, id(clockos_font_sm), TextAlign::CENTER, text1.c_str());
         }
         else
         {
-            it.printf(text_center_x, text_center_y - 5, id(font_sm), TextAlign::CENTER, text1.c_str());
-            it.printf(text_center_x, text_center_y + 5, id(font_xxs), TextAlign::CENTER, text2.c_str());
+            it.printf(text_center_x, text_center_y - 5, id(clockos_font_sm), TextAlign::CENTER, text1.c_str());
+            it.printf(text_center_x, text_center_y + 5, id(clockos_font_xxs), TextAlign::CENTER, text2.c_str());
         }
     }

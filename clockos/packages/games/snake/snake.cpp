@@ -3,7 +3,7 @@
     int screen_w = it.get_width();
     int screen_h = it.get_height();
     // global_game_snake_speed: 1 (slow) to 20 (fast)
-    int frames_per_update = 21 - id(global_game_snake_speed);
+    int frames_per_update = 21 - id(clockos_global_game_snake_speed);
     int max_x = 25;
     int max_y = 11;
     int pickup_score = 10;
@@ -100,7 +100,7 @@
     };
 
     auto rumble = [&]() {
-        if (id(global_game_rumble)) {
+        if (id(clockos_global_rumble_enabled)) {
             id(clockos_output_rumble).turn_on();
             rumble_frames = rumble_duration;
         }
@@ -265,7 +265,7 @@
         bool collided_with_wall = false;
         // Check for wall collisions
         if (new_x < 0 || new_x >= max_x || new_y < 0 || new_y >= max_y) {
-            if (id(global_game_snake_walls)) {
+            if (id(clockos_global_game_snake_speed)) {
                 // Collided with wall - game over
                 collided_with_wall = true;
                 reset_game();
@@ -353,7 +353,7 @@
     {
         // Draw score in top right of status bar
         int padding_x = 2;
-        it.printf(screen_w - padding_x, -2, id(font_xxs), TextAlign::TOP_RIGHT, "%d", score_ticker);
+        it.printf(screen_w - padding_x, -2, id(clockos_font_xxs), TextAlign::TOP_RIGHT, "%d", score_ticker);
     };
 
     auto draw_direction = [&]()
@@ -399,7 +399,7 @@
     }
     */
 
-    if(id(global_game_snake_walls)) {
+    if(id(clockos_global_game_snake_walls)) {
         // Draw border
         it.rectangle(0, offset_y, max_x * (box_size+1)-1, max_y * (box_size+1)-1);
     } else {

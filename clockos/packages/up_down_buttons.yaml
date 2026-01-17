@@ -15,7 +15,7 @@ binary_sensor:
     on_press:
       then:
         - script.execute: script_update_last_activity
-        - display_menu.up: main_menu
+        - display_menu.up: clockos_menu_main
         - lambda: 'id(clockos_global_knob_direction) = -1;'
   - platform: gpio
     id: clockos_button_down
@@ -30,5 +30,5 @@ binary_sensor:
     on_press:
       then:
         - script.execute: script_update_last_activity
-        - display_menu.down: main_menu
+        - display_menu.down: clockos_menu_main
         - lambda: 'id(clockos_global_knob_direction) = 1;'

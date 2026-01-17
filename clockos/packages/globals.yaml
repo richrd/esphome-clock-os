@@ -9,10 +9,12 @@ globals:
     type: int
     initial_value: '0'
 
+  # Has the knob been pressed
   - id: clockos_global_knob_pressed
     type: bool
     initial_value: 'false'
 
+  # Should the knob press be treated as handled by an app
   - id: clockos_global_knob_press_handled
     type: bool
     initial_value: 'false'
@@ -32,26 +34,20 @@ globals:
     restore_value: yes
 
   # Beeper volume 0-100
-  - id: global_global_beeper_volume
+  - id: clockos_global_global_beeper_volume
     type: int
     initial_value: '2'
 
-  # Game settings
-
-  # Game autoplay enabled (game plays itself if supported)
-  - id: clockos_global_game_autoplay
-    type: bool
-    initial_value: 'false'
-
-  # Game sound enabled
-  - id: global_game_sound
+  # Sound enabled
+  - id: clockos_global_sound_enabled
     type: bool
     initial_value: 'true'
 
-  # Game rumble enabled
-  - id: global_game_rumble
+  # Rumble enabled
+  - id: clockos_global_rumble_enabled
     type: bool
     initial_value: 'true'
+
 
   # Display timeout 
 
@@ -66,3 +62,11 @@ globals:
     type: int
     initial_value: '0'
     restore_value: yes
+
+
+  # Game settings
+
+  # Game autoplay enabled (game plays itself if supported)
+  - id: clockos_global_game_autoplay
+    type: bool
+    initial_value: 'false'

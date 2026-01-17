@@ -42,8 +42,8 @@ number:
     initial_value: 2
     set_action:
     - lambda: |-
-        id(rtttl_player).set_gain(x / 100.0);
-        id(global_global_beeper_volume) = (int)x;
+        id(clockos_rtttl_player).set_gain(x / 100.0);
+        id(clockos_global_global_beeper_volume) = (int)x;
 
 
 ################################################################
@@ -52,11 +52,11 @@ number:
 output:
   - platform: ledc
     pin: ${clockos_pin_beeper}
-    id: rttl_pwm_output
+    id: clockos_rtttl_pwm_output
 
 rtttl:
-  output: rttl_pwm_output
-  id: rtttl_player
+  output: clockos_rtttl_pwm_output
+  id: clockos_rtttl_player
   gain: 2%
 
 switch:
@@ -66,24 +66,24 @@ switch:
     name: "Rumble Motor"
   - platform: template
     name: "Sound"
-    id: switch_game_sound
+    id: clockos_switch_sound_enabled
     restore_mode: RESTORE_DEFAULT_ON
     lambda: |-
-      return id(global_game_sound);
+      return id(clockos_global_sound_enabled);
     turn_on_action:
-      - lambda: 'id(global_game_sound) = true;'
+      - lambda: 'id(clockos_global_sound_enabled) = true;'
     turn_off_action:
-      - lambda: 'id(global_game_sound) = false;'
+      - lambda: 'id(clockos_global_sound_enabled) = false;'
   - platform: template
     name: "Rumble"
-    id: switch_game_rumble
+    id: clockos_switch_rumble_enabled
     restore_mode: RESTORE_DEFAULT_ON
     lambda: |-
-      return id(global_game_rumble);
+      return id(clockos_global_rumble_enabled);
     turn_on_action:
-      - lambda: 'id(global_game_rumble) = true;'
+      - lambda: 'id(clockos_global_rumble_enabled) = true;'
     turn_off_action:
-      - lambda: 'id(global_game_rumble) = false;'
+      - lambda: 'id(clockos_global_rumble_enabled) = false;'
 
 ################################################################
 # Output / Display
@@ -126,11 +126,11 @@ sensor:
         pullup: true
     on_anticlockwise:
       - script.execute: script_update_last_activity
-      - display_menu.up: main_menu
+      - display_menu.up: clockos_menu_main
       - lambda: 'id(clockos_global_knob_direction) = -1;'
     on_clockwise:
       - script.execute: script_update_last_activity
-      - display_menu.down: main_menu
+      - display_menu.down: clockos_menu_main
       - lambda: 'id(clockos_global_knob_direction) = 1;'
     min_value: 0
     max_value: 50
@@ -156,17 +156,17 @@ binary_sensor:
         - if:
             condition:
               # If the main menu is already active (i.e., we're navigating within it)
-              - display_menu.is_active: main_menu
+              - display_menu.is_active: clockos_menu_main
             then:
               # Enter (or select the current item) in the main menu
-              - display_menu.enter: main_menu
+              - display_menu.enter: clockos_menu_main
             else:
               if:
                 condition:
                   # Check that knob button isn't handled already
                   - lambda: 'return !id(clockos_global_knob_press_handled);'
                 then:
-                  - display_menu.show: main_menu
+                  - display_menu.show: clockos_menu_main
                   - lambda: id(clockos_output_rumble).turn_off();
                 else:
                   - lambda: 'id(clockos_global_knob_pressed) = true;'
@@ -174,5 +174,5 @@ binary_sensor:
 
     on_double_click:
       - lambda: 'id(clockos_global_knob_pressed) = false; id(clockos_global_knob_press_handled) = false;'
-      - display_menu.hide: main_menu
-      - display.page.show: page_main
+      - display_menu.hide: clockos_menu_main
+      - display.page.show: clockos_page_main

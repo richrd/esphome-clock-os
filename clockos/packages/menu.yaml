@@ -2,13 +2,13 @@
 # Menu
 ################################################################
 graphical_display_menu:
-  id: main_menu
+  id: clockos_menu_main
   display: clockos_display
   active: false
   on_redraw:
     then:
       component.update: clockos_display
-  font: font_menu
+  font: clockos_font_menu
   mode: rotary
   menu_item_value: !lambda |-
     // Customize menu value editing visuals
@@ -29,16 +29,16 @@ graphical_display_menu:
       on_value:
         then:
             - lambda: 'ESP_LOGW("menu", "Back to main page");'
-            - script.execute: script_back_to_main_page
+            - script.execute: clockos_script_back_to_main_page
     - type: menu
       text: ' Clock ⏵ '
-      id: menu_submenu_clock
+      id: clockos_menu_submenu_clock
       items:
       - type: back
         text: ' ⏴ Back '
     - type: menu
       text: ' Games ⏵ '
-      id: menu_submenu_games
+      id: clockos_menu_submenu_games
       items:
         - type: back
           text: ' ⏴ Back '
@@ -55,26 +55,26 @@ graphical_display_menu:
                   else:
                     - switch.turn_on: clockos_switch_game_autoplay
         - type: menu
-          id: menu_submenu_demos
+          id: clockos_menu_submenu_demos
           text: ' Demos ⏵ '
           items:
             - type: back
               text: ' ⏴ Back '
     - type: menu
       text: ' Sounds ⏵ '
-      id: menu_submenu_sounds
+      id: clockos_menu_submenu_sounds
       items:
         - type: back
           text: ' ⏴ Back '
     - type: menu
-      id: menu_submenu_control
+      id: clockos_menu_submenu_control
       text: ' Control ⏵ '
       items:
         - type: back
           text: ' ⏴ Back '
     - type: menu
       text: ' Settings ⏵ '
-      id: menu_submenu_settings
+      id: clockos_menu_submenu_settings
       items:
         - type: back
           text: ' ⏴ Back '
@@ -86,28 +86,28 @@ graphical_display_menu:
           number: clockos_number_display_timeout
         - type: command
           text: !lambda |-
-            return std::string(" Rumble [") + (id(global_game_rumble) ? "ON" : "OFF") + "]";
+            return std::string(" Rumble [") + (id(clockos_global_rumble_enabled) ? "ON" : "OFF") + "]";
           on_value:
             then:
               - if:
                   condition:
-                    lambda: 'return id(global_game_rumble);'
+                    lambda: 'return id(clockos_global_rumble_enabled);'
                   then:
-                    - switch.turn_off: switch_game_rumble
+                    - switch.turn_off: clockos_switch_rumble_enabled
                   else:
-                    - switch.turn_on: switch_game_rumble
+                    - switch.turn_on: clockos_switch_rumble_enabled
         - type: command
           text: !lambda |-
-            return std::string(" Sound [") + (id(global_game_sound) ? "ON" : "OFF") + "]";
+            return std::string(" Sound [") + (id(clockos_global_sound_enabled) ? "ON" : "OFF") + "]";
           on_value:
             then:
               - if:
                   condition:
-                    lambda: 'return id(global_game_sound);'
+                    lambda: 'return id(clockos_global_sound_enabled);'
                   then:
-                    - switch.turn_off: switch_game_sound
+                    - switch.turn_off: clockos_switch_sound_enabled
                   else:
-                    - switch.turn_on: switch_game_sound
+                    - switch.turn_on: clockos_switch_sound_enabled
         - type: number
           text: ' Volume '
           number: clockos_number_beeper_volume

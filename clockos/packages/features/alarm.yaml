@@ -1,15 +1,15 @@
 # Persist alarm state and time in globals
 globals:
-  - id: global_feature_alarm_enabled
+  - id: clockos_global_feature_alarm_enabled
     type: bool
     initial_value: 'false'
 
-  - id: global_feature_alarm_hour
+  - id: clockos_global_feature_alarm_hour
     type: int
     initial_value: '9'
     restore_value: yes
 
-  - id: global_feature_alarm_minute
+  - id: clockos_global_feature_alarm_minute
     type: int
     initial_value: '30'
     restore_value: yes
@@ -22,10 +22,10 @@ esphome:
       # Initialize wake up time number components from persisted globals
       - number.set:
           id: feature_alarm_time_hour
-          value: !lambda "return id(global_feature_alarm_hour);"
+          value: !lambda "return id(clockos_global_feature_alarm_hour);"
       - number.set:
           id: feature_alarm_time_minute
-          value: !lambda "return id(global_feature_alarm_minute);"
+          value: !lambda "return id(clockos_global_feature_alarm_minute);"
 
 
 # Handle triggering the alarm at the set time
@@ -34,17 +34,17 @@ time:
     on_time:
       - seconds: 0
         then:
-          - script.execute: script_feature_alarm_check
+          - script.execute: clockos_script_feature_alarm_check
   - id: !extend clockos_time_ha
     on_time:
       - seconds: 0
         then:
-          - script.execute: script_feature_alarm_check
+          - script.execute: clockos_script_feature_alarm_check
 
 display:
   - id: !extend clockos_display
     pages:
-      - id: page_app_alarm
+      - id: clockos_page_app_alarm
         lambda: !include "alarm.cpp"
 
 
@@ -56,11 +56,11 @@ switch:
     id: switch_feature_alarm_enabled
     restore_mode: RESTORE_DEFAULT_OFF
     lambda: |-
-      return id(global_feature_alarm_enabled);
+      return id(clockos_global_feature_alarm_enabled);
     turn_on_action:
-      - lambda: 'id(global_feature_alarm_enabled) = true;'
+      - lambda: 'id(clockos_global_feature_alarm_enabled) = true;'
     turn_off_action:
-      - lambda: 'id(global_feature_alarm_enabled) = false;'
+      - lambda: 'id(clockos_global_feature_alarm_enabled) = false;'
   # If the alarm is currently playing
   - platform: template
     name: "Alarm active"
@@ -68,32 +68,32 @@ switch:
     restore_mode: ALWAYS_OFF
     optimistic: true
     turn_on_action:
-      - script.execute: script_feature_alarm_sound
+      - script.execute: clockos_script_feature_alarm_sound
     turn_off_action:
-      - script.stop: script_feature_alarm_sound
+      - script.stop: clockos_script_feature_alarm_sound
       - rtttl.stop
 
 
 # Add alarm menu items
 graphical_display_menu:
-  id: main_menu
+  id: clockos_menu_main
   items:
-    - id: !extend menu_submenu_clock
+    - id: !extend clockos_menu_submenu_clock
       items:
         - type: menu
           text: ' Alarm ⏵ '
-          id: menu_submenu_alarm
+          id: clockos_menu_submenu_alarm
           items:
             - type: back
               text: ' ⏴ Back '
             - type: command
               text: !lambda |-
-                return std::string(" Alarm [") + (id(global_feature_alarm_enabled) ? "ON" : "OFF") + "]";
+                return std::string(" Alarm [") + (id(clockos_global_feature_alarm_enabled) ? "ON" : "OFF") + "]";
               on_value:
                 then:
                   - if:
                       condition:
-                        lambda: 'return id(global_feature_alarm_enabled);'
+                        lambda: 'return id(clockos_global_feature_alarm_enabled);'
                       then:
                         - switch.turn_off: switch_feature_alarm_enabled
                       else:
@@ -108,7 +108,7 @@ graphical_display_menu:
 
 # Handle alarm sound
 script:
-  - id: script_feature_alarm_check
+  - id: clockos_script_feature_alarm_check
     then:
       - if:
           # Condition 1: Check if the alarm switch is on
@@ -120,8 +120,8 @@ script:
                 condition:
                   lambda: |-
                     // Get the desired alarm hour and minute from global variables
-                    int alarm_hour = id(global_feature_alarm_hour);
-                    int alarm_minute = id(global_feature_alarm_minute);
+                    int alarm_hour = id(clockos_global_feature_alarm_hour);
+                    int alarm_minute = id(clockos_global_feature_alarm_minute);
 
                     int current_hour = -1;
                     int current_minute = -1;
@@ -143,10 +143,10 @@ script:
                     return (current_hour == alarm_hour) && (current_minute == alarm_minute);
                 then:
                   - script.execute: script_update_last_activity
-                  - display_menu.hide: main_menu
-                  - display.page.show: page_app_alarm
+                  - display_menu.hide: clockos_menu_main
+                  - display.page.show: clockos_page_app_alarm
                   - switch.turn_on: switch_feature_alarm_active
-  - id: script_feature_alarm_sound
+  - id: clockos_script_feature_alarm_sound
     then:
       # Play the most annoying alarm sound possible (beep beep beep beep x4, wait ... repeat)
       - rtttl.play: 'Untitled:d=32,o=6,b=100:e,p,e,p,e,p,e,p,p,p,p,p,e,p,e,p,e,p,e,p,p,p,p,p,e,p,e,p,e,p,e,p,p,p,p,p,e,p,e,p,e,p,e'
@@ -155,15 +155,15 @@ script:
           condition:
             switch.is_on: switch_feature_alarm_enabled
           then:
-            - script.execute: script_feature_alarm_sound_repeat
-  - id: script_feature_alarm_sound_repeat
+            - script.execute: clockos_script_feature_alarm_sound_repeat
+  - id: clockos_script_feature_alarm_sound_repeat
     then:
       - delay: 1s
       - if:
           condition:
             switch.is_on: switch_feature_alarm_enabled
           then:
-            - script.execute: script_feature_alarm_sound
+            - script.execute: clockos_script_feature_alarm_sound
 
 
 
@@ -179,7 +179,7 @@ number:
     on_value:
       then:
         - lambda: |-
-            id(global_feature_alarm_hour) = (int)x;
+            id(clockos_global_feature_alarm_hour) = (int)x;
   - platform: template
     id: feature_alarm_time_minute
     name: "Wake up minute"
@@ -190,7 +190,7 @@ number:
     on_value:
       then:
         - lambda: |-
-            id(global_feature_alarm_minute) = (int)x;
+            id(clockos_global_feature_alarm_minute) = (int)x;
 
 
 # Silence alarm when knob/select button is pressed

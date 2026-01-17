@@ -20,4 +20,4 @@
     it.filled_circle(x, y, 5);
 
     // Draw FPS counter at top-left corner
-    it.printf(0, 0, id(font_xs), COLOR_ON, "FPS: %d", fps);
+    it.printf(0, 0, id(clockos_font_xs), COLOR_ON, "FPS: %d", fps);

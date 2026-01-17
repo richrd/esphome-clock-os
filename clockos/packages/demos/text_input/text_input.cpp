@@ -12,7 +12,7 @@
 
     if(id(clockos_global_knob_pressed)) {
         // Activate the main menu
-        id(main_menu).show();
+        id(clockos_menu_main).show();
         id(clockos_global_knob_pressed) = false;
         return;
     }
@@ -31,8 +31,8 @@
 
 
     it.fill(COLOR_OFF);
-    it.printf(0, 0, id(font_xxs), TextAlign::TOP_LEFT, "INDEX: %d", current_char_index);
-    it.printf(0, 10, id(font_xxs), TextAlign::TOP_LEFT, "CHAR: %c", available_chars[current_char_index]);
+    it.printf(0, 0, id(clockos_font_xxs), TextAlign::TOP_LEFT, "INDEX: %d", current_char_index);
+    it.printf(0, 10, id(clockos_font_xxs), TextAlign::TOP_LEFT, "CHAR: %c", available_chars[current_char_index]);
 
     int field_x = 10;
     int field_y = 40;
@@ -42,5 +42,5 @@
     int character_width = 12;
 
     it.rectangle(field_x, field_y, field_w, field_h);
-    it.printf(field_x + field_text_offset_x, field_y, id(font_sm), "%c", available_chars[current_char_index]);
+    it.printf(field_x + field_text_offset_x, field_y, id(clockos_font_sm), "%c", available_chars[current_char_index]);
 

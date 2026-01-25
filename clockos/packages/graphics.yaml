@@ -2,6 +2,11 @@
 # Graphics
 ################################################################
 
+# Suppress warnings for missing glyphs in fonts
+logger:
+  logs:
+    font: ERROR
+
 # Fonts
 font:
   # XXL

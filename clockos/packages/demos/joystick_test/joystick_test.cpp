@@ -27,5 +27,5 @@
     float curve_y = apply_exponential_curve(y_filtered_value);
 
     it.printf(0, 20, id(clockos_font_xxs), "Raw X: %.2f Raw Y: %.2f", id(clockos_joystick_x).raw_state, id(clockos_joystick_y).raw_state);
-    it.printf(0, 30, id(clockos_font_xxs), "Filtered X: %.2f Raw Y: %.2f", x_filtered_value, y_filtered_value);
-    it.printf(0, 40, id(clockos_font_xxs), "X: %.2f Y: %.2f", curve_x, curve_y);
+    it.printf(0, 30, id(clockos_font_xxs), "F X: %.2f F Y: %.2f", x_filtered_value, y_filtered_value);
+    it.printf(0, 40, id(clockos_font_xxs), "C X: %.2f C Y: %.2f", curve_x, curve_y);

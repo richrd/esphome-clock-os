@@ -25,6 +25,8 @@ display:
     pages:
       - id: clockos_page_feature_system
         lambda: !include "system.cpp"
+      - id: clockos_page_feature_system_info
+        lambda: !include "system_info.cpp"
 
 
 # Factory reset switch
@@ -77,6 +79,12 @@ graphical_display_menu:
                   else:
                     - lambda: 'id(clockos_global_wifi_enabled) = true;'
                     - wifi.enable
+        - type: command
+          text: ' Info '
+          on_value:
+            then:
+                - display_menu.hide: clockos_menu_main
+                - display.page.show: clockos_page_feature_system_info
         - type: command
           text: " Restart "
           on_value:
